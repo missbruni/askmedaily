@@ -1,8 +1,5 @@
 import type { User, Question } from "@prisma/client";
-
 import { prisma } from "~/db.server";
-
-export type { Question } from "@prisma/client";
 
 export function getQuestion({
   id,
@@ -21,6 +18,18 @@ export function getQuestionListItems({ userId }: { userId: User["id"] }) {
     select: { id: true, question: true },
     orderBy: { updatedAt: "desc" },
   });
+}
+
+export async function getRandomQuestion(id?: string) {
+  const count = await prisma.question.count();
+  const skip = Math.floor(Math.random() * count);
+  const [randomQuestion] = await prisma.question.findMany({
+    ...(id && { where: { id: { not: id } } }),
+    take: 1,
+    skip: skip,
+  });
+
+  return randomQuestion;
 }
 
 export function createQuestion({
@@ -69,5 +78,11 @@ export function deleteQuestion({
 }: Pick<Question, "id"> & { userId: User["id"] }) {
   return prisma.question.deleteMany({
     where: { id, userId },
+  });
+}
+
+export function deleteQuestions({ userId }: { userId: User["id"] }) {
+  return prisma.question.deleteMany({
+    where: { userId },
   });
 }

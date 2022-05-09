@@ -1,62 +1,70 @@
-import { Link } from "@remix-run/react";
+import { Question } from "@prisma/client";
+import {
+  Form,
+  Link,
+  Outlet,
+  useActionData,
+  useLoaderData,
+} from "@remix-run/react";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+} from "@remix-run/server-runtime";
+import AppBar from "~/components/AppBar";
 import LogoutButton from "~/components/Logout";
+import { getRandomQuestion } from "~/models/question.server";
 
 import { useOptionalUser } from "~/utils";
 
+export const loader: LoaderFunction = async ({ request }) => {
+  return { question: await getRandomQuestion() };
+};
+
+type ActionData = { question: Question };
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+
+  const questionId = formData.get("questionId") as string;
+  const newQuestion = await getRandomQuestion(questionId);
+
+  return json<ActionData>({ question: newQuestion });
+};
+
 export default function Index() {
   const user = useOptionalUser();
+  const loaderData = useLoaderData();
+  const actionData = useActionData<ActionData>();
+
+  const question = actionData?.question || loaderData.question;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <header>
-        <nav>
-          <ul className="flex items-center justify-end gap-4 bg-gray-900 p-4 text-yellow-500">
-            {user ? (
-              <>
-                <li>
-                  <LogoutButton />
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link
-                    to="/login"
-                    className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-2 font-medium text-white hover:bg-yellow-600"
-                  >
-                    Log In
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/join"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 "
-                  >
-                    Sign up
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </nav>
-      </header>
-      <main>
-        {/* <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center"> */}
+      <AppBar user={user} />
+      <main className="h-full bg-[aliceblue]">
         <div className="relative sm:pb-16 sm:pt-8">
-          <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
-              <div className="absolute inset-0 bg-gray-900">
-                <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
-              </div>
-              <div className="lg:pb-18 relative px-4 pt-16 pb-8 sm:px-6 sm:pt-24 sm:pb-14 lg:px-8 lg:pt-32">
-                <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-5xl lg:text-7xl">
-                  <span className="block uppercase text-yellow-500 drop-shadow-md">
-                    Daily Question
+          <div className="flex items-center justify-center sm:px-6 lg:px-8">
+            <div className="relative inset-0 w-[700px] bg-[#252525] shadow-xl sm:overflow-hidden sm:rounded-2xl">
+              <div className="lg:pb-18 flex flex-col items-center justify-center gap-20 px-4 pt-16 pb-8 sm:px-6 sm:pb-14 lg:px-8 lg:pt-32">
+                <h6 className="text-center text-2xl font-extrabold tracking-tight">
+                  <span className="block text-[#1dbab4] drop-shadow-md">
+                    Question
                   </span>
-                </h1>
-                <div className="mx-auto mt-10 max-w-sm text-white sm:flex sm:max-w-none sm:justify-center">
-                  a question here...
-                </div>
+                </h6>
+                <h3 className="text-center text-3xl font-extrabold tracking-tight sm:text-3xl lg:text-5xl">
+                  <span className="block text-white drop-shadow-md">
+                    {question.question || "No question found."}
+                  </span>
+                </h3>
+                <Form method="post">
+                  <input type="hidden" name="questionId" value={question.id} />
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-[#1dbab4] shadow-sm hover:bg-[#e4f9f8]"
+                  >
+                    Next Question
+                  </button>
+                </Form>
               </div>
             </div>
           </div>

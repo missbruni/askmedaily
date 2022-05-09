@@ -25,7 +25,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const question = await createQuestion({ question: newQuestion, userId });
+  await createQuestion({ question: newQuestion, userId });
 
   return redirect(`/questions`);
 };

@@ -1,11 +1,15 @@
-import type { LoaderFunction } from "@remix-run/node";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-import { getQuestionListItems } from "~/models/question.server";
+import {
+  deleteQuestions,
+  getQuestionListItems,
+} from "~/models/question.server";
 import LogoutButton from "~/components/Logout";
+import AppBar from "~/components/AppBar";
 
 type LoaderData = {
   questionListItems: Awaited<ReturnType<typeof getQuestionListItems>>;
@@ -17,19 +21,18 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({ questionListItems });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  await deleteQuestions({ userId: await requireUserId(request) });
+  return redirect("/");
+};
+
 export default function QuestionsPage() {
   const data = useLoaderData() as LoaderData;
   const user = useUser();
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <header className="flex items-center justify-between bg-gray-900 p-3 text-white">
-        <h1 className="text-3xl font-bold">
-          <Link to="">Questions</Link>
-        </h1>
-        <p>{user.email}</p>
-        <LogoutButton />
-      </header>
+      <AppBar user={user} />
 
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
@@ -42,20 +45,32 @@ export default function QuestionsPage() {
           {data.questionListItems.length === 0 ? (
             <p className="p-4">No Questions yet</p>
           ) : (
-            <ol>
-              {data.questionListItems.map((question) => (
-                <li key={question.id}>
-                  <NavLink
-                    className={({ isActive }) =>
-                      `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
-                    }
-                    to={question.id}
-                  >
-                    📝 {question.question}
-                  </NavLink>
-                </li>
-              ))}
-            </ol>
+            <>
+              <ol className="h-[calc(100%-188px)] overflow-scroll">
+                {data.questionListItems.map((question) => (
+                  <li key={question.id}>
+                    <NavLink
+                      to={question.id}
+                      className={({ isActive }) =>
+                        `block border-b p-4 text-xl ${
+                          isActive ? "bg-white" : ""
+                        }`
+                      }
+                    >
+                      {question.question}
+                    </NavLink>
+                  </li>
+                ))}
+              </ol>
+              <Form method="post" className="absolute bottom-0 p-3">
+                <button
+                  type="submit"
+                  className="rounded bg-red-500  py-2 px-4 text-white hover:bg-red-600 focus:bg-red-400"
+                >
+                  Delete All
+                </button>
+              </Form>
+            </>
           )}
         </div>
 

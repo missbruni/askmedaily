@@ -1,7 +1,9 @@
+import { Question } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
 import type { User } from "~/models/user.server";
+import { getRandomQuestion } from "./models/question.server";
 
 const DEFAULT_REDIRECT = "/";
 

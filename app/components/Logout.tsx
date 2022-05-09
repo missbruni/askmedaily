@@ -7,7 +7,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = (props) => {
     <Form action="/logout" method="post">
       <button
         type="submit"
-        className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-2 font-medium text-white hover:bg-yellow-600"
+        className="flex items-center justify-center rounded-md bg-[#1dbab4] px-4 py-2 font-medium text-white hover:bg-[#138784]"
       >
         Logout
       </button>
