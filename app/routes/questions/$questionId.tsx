@@ -1,10 +1,11 @@
+import React from "react";
+import { Question } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
-import React from "react";
 import invariant from "tiny-invariant";
 
-import { Question, updateQuestion } from "~/models/question.server";
+import { updateQuestion } from "~/models/question.server";
 import { deleteQuestion } from "~/models/question.server";
 import { getQuestion } from "~/models/question.server";
 import { requireUserId } from "~/session.server";
