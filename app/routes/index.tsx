@@ -36,7 +36,7 @@ export default function Index() {
   const loaderData = useLoaderData();
   const actionData = useActionData<ActionData>();
 
-  const question = actionData?.question || loaderData.question;
+  const question = actionData?.question || loaderData?.question;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -53,18 +53,24 @@ export default function Index() {
                 </h6>
                 <h3 className="text-center text-3xl font-extrabold tracking-tight sm:text-3xl lg:text-5xl">
                   <span className="block text-white drop-shadow-md">
-                    {question.question || "No question found."}
+                    {question?.question || "No question found."}
                   </span>
                 </h3>
-                <Form method="post">
-                  <input type="hidden" name="questionId" value={question.id} />
-                  <button
-                    type="submit"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-[#1dbab4] shadow-sm hover:bg-[#e4f9f8]"
-                  >
-                    Next Question
-                  </button>
-                </Form>
+                {Boolean(question) && (
+                  <Form method="post">
+                    <input
+                      type="hidden"
+                      name="questionId"
+                      value={question?.id}
+                    />
+                    <button
+                      type="submit"
+                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-[#1dbab4] shadow-sm hover:bg-[#e4f9f8]"
+                    >
+                      Next Question
+                    </button>
+                  </Form>
+                )}
               </div>
             </div>
           </div>
