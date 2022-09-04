@@ -20,16 +20,17 @@ export function getQuestionListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
-export async function getRandomQuestion(id?: string) {
+export async function getRandomQuestions(ids?: string[]) {
   const count = await prisma.question.count();
   const skip = Math.floor(Math.random() * count);
-  const [randomQuestion] = await prisma.question.findMany({
-    ...(id && { where: { id: { not: id } } }),
-    take: 1,
-    skip: skip,
+  const randomQuestions = await prisma.question.findMany({
+    ...(ids && { where: { id: { not: { in: ids } } } }),
+    take: 5,
+    skip,
+    include: { user: true },
   });
 
-  return randomQuestion;
+  return randomQuestions;
 }
 
 export function createQuestion({
