@@ -1,16 +1,19 @@
 import React from "react";
 import { User } from "@prisma/client";
-import { Link, Outlet, useLocation } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import LogoutButton from "./Logout";
+import { useMedia } from "react-use";
 
 type AppBarProps = {
   user: User | undefined;
 };
 const AppBar: React.FC<AppBarProps> = ({ user }) => {
+  const isDownSm = useMedia("(max-width: 480px)");
+
   return (
     <header className="flex items-center justify-between bg-[#252525] p-3 text-white">
       <h1 className="text-3xl font-bold text-[#1dbab4]">
-        <Link to="/.">DailyQuestions</Link>
+        <Link to="/.">{isDownSm ? "AMD" : "AskMeDaily"}</Link>
       </h1>
       <div className="flex items-center gap-2">
         {user ? (

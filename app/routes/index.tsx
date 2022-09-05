@@ -46,7 +46,7 @@ export default function Index() {
   return (
     <div className="flex h-full min-h-screen flex-col">
       <AppBar user={user} />
-      <main className="h-full bg-[aliceblue]">
+      <main className="h-full w-full bg-[aliceblue]">
         <Deck
           onFinish={handleReshuffle}
           cards={questions.map((q: Question & { user: User }) => (

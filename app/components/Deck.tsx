@@ -80,7 +80,7 @@ function Deck({
       {props.map(({ x, y, rot, scale }, i) => (
         <animated.div
           key={i}
-          className="flex h-full w-full items-center justify-center sm:px-6 lg:px-8"
+          className="mt-36 flex h-full w-full justify-center sm:px-6 lg:px-8"
           style={{
             x,
             y,
@@ -90,7 +90,7 @@ function Deck({
         >
           {/* This is the card itself, we're binding our gesture to it (and inject its index so we know which is which) */}
           <animated.div
-            className="relative inset-0 w-[700px] bg-[#252525] shadow-xl sm:overflow-hidden sm:rounded-2xl"
+            className="xs:w-[300px] relative inset-0 w-[700px] bg-[#252525] shadow-xl sm:overflow-hidden sm:rounded-2xl"
             {...bind(i)}
             style={{
               transform: interpolate([rot, scale], trans),

@@ -2,6 +2,7 @@ import React from "react";
 import { Question, User } from "@prisma/client";
 
 import RevealButton from "./RevealButton";
+import { capitalizeFirstLetter } from "~/utils";
 
 type QuestionProps = {
   question: Question & { user: User };
@@ -47,7 +48,9 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
             />
           }
         >
-          <span className="text-white">{question.user.email}</span>
+          <span className="text-white">
+            {capitalizeFirstLetter(question.user.email.split("@")[0])}
+          </span>
         </RevealButton>
       </div>
     </div>
