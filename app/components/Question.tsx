@@ -37,17 +37,7 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
         </span>
       </h3>
       <div>
-        <RevealButton
-          label="Reveal Author"
-          image={
-            <img
-              alt="monkey-gif"
-              src="https://www.icegif.com/wp-content/uploads/maradona-icegif-5.gif"
-              width="180px"
-              ref={gifRef}
-            />
-          }
-        >
+        <RevealButton label="Reveal Author">
           <span className="text-white">
             {capitalizeFirstLetter(question.user.email.split("@")[0])}
           </span>
