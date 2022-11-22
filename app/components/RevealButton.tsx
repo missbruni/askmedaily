@@ -1,7 +1,7 @@
+import React from "react";
+
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import React from "react";
-import Question from "./Question";
 
 type RevealButtonProps = {
   label: string;
