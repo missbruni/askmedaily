@@ -16,6 +16,8 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  return redirect("/maintenance");
+
   const userId = await requireUserId(request);
   const questionListItems = await getQuestionListItems({ userId });
   return json<LoaderData>({ questionListItems });

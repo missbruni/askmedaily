@@ -5,7 +5,7 @@ import LogoutButton from "./Logout";
 import { useMedia } from "react-use";
 
 type AppBarProps = {
-  user: User | undefined;
+  user?: User | undefined;
 };
 const AppBar: React.FC<AppBarProps> = ({ user }) => {
   const isDownSm = useMedia("(max-width: 480px)");
@@ -15,7 +15,7 @@ const AppBar: React.FC<AppBarProps> = ({ user }) => {
       <h1 className="text-3xl font-bold text-[#1dbab4]">
         <Link to="/.">{isDownSm ? "AMD" : "AskMeDaily"}</Link>
       </h1>
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         {user ? (
           <>
             <Link
@@ -45,7 +45,7 @@ const AppBar: React.FC<AppBarProps> = ({ user }) => {
             </Link>
           </>
         )}
-      </div>
+      </div> */}
     </header>
   );
 };

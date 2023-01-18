@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  const user = useOptionalUser();
+  // const user = useOptionalUser();
   const loaderData = useLoaderData();
   const actionData = useActionData<ActionData>();
 
@@ -45,7 +45,8 @@ export default function Index() {
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <AppBar user={user} />
+      {/* <AppBar user={user} /> */}
+      <AppBar />
       <main className="h-full w-full bg-[aliceblue]">
         <Deck
           onFinish={handleReshuffle}

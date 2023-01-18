@@ -13,6 +13,8 @@ import { createUser, getUserByEmail } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
+  return redirect("/maintenance");
+
   const userId = await getUserId(request);
   if (userId) return redirect("/");
   return json({});
