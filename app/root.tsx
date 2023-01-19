@@ -31,9 +31,9 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return json<LoaderData>({
-    user: await getUser(request),
-  });
+  // return json<LoaderData>({
+  //   user: await getUser(request),
+  // });
 };
 
 export default function App() {
