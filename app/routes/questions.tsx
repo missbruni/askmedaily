@@ -2,30 +2,33 @@ import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
-import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 import {
   deleteQuestions,
   getQuestionListItems,
 } from "~/models/question.server";
-import LogoutButton from "~/components/Logout";
 import AppBar from "~/components/AppBar";
+import { getUser } from "~/auth.server";
 
 type LoaderData = {
   questionListItems: Awaited<ReturnType<typeof getQuestionListItems>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return redirect("/maintenance");
-
-  const userId = await requireUserId(request);
-  const questionListItems = await getQuestionListItems({ userId });
-  return json<LoaderData>({ questionListItems });
+  const user = await getUser();
+  if (user) {
+    const questionListItems = await getQuestionListItems({ userId: user?.uid });
+    return json<LoaderData>({ questionListItems });
+  }
+  return redirect("/logout");
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  await deleteQuestions({ userId: await requireUserId(request) });
-  return redirect("/");
+  const user = await getUser();
+  if (user) {
+    await deleteQuestions({ userId: user?.uid });
+    return redirect("/");
+  }
 };
 
 export default function QuestionsPage() {

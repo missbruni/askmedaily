@@ -1,4 +1,4 @@
-import { Question, User } from "@prisma/client";
+import { Question } from "@prisma/client";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
   ActionFunction,
@@ -15,7 +15,7 @@ import { getRandomQuestions } from "~/models/question.server";
 
 import { useOptionalUser } from "~/utils";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   return { questions: await getRandomQuestions() };
 };
 
@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  // const user = useOptionalUser();
+  const user = useOptionalUser();
   const loaderData = useLoaderData();
   const actionData = useActionData<ActionData>();
 
@@ -45,12 +45,11 @@ export default function Index() {
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      {/* <AppBar user={user} /> */}
-      <AppBar />
+      <AppBar user={user} />
       <main className="h-full w-full bg-[aliceblue]">
         <Deck
           onFinish={handleReshuffle}
-          cards={questions.map((q: Question & { user: User }) => (
+          cards={questions.map((q: Question) => (
             <QuestionCard key={q.id} question={q} />
           ))}
         ></Deck>

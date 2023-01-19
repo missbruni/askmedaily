@@ -1,8 +1,8 @@
 import React from "react";
-import { Question, User } from "@prisma/client";
+import { Question } from "@prisma/client";
 
 type QuestionProps = {
-  question: Question & { user: User };
+  question: Question;
 };
 
 const Question: React.FC<QuestionProps> = ({ question }) => {

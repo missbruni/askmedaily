@@ -1,18 +1,19 @@
-import type { User, Question } from "@prisma/client";
+import type { Question } from "@prisma/client";
+import { User } from "firebase/auth";
 import { prisma } from "~/db.server";
 
 export function getQuestion({
   id,
   userId,
 }: Pick<Question, "id"> & {
-  userId: User["id"];
+  userId: User["uid"];
 }) {
   return prisma.question.findFirst({
     where: { id, userId },
   });
 }
 
-export function getQuestionListItems({ userId }: { userId: User["id"] }) {
+export function getQuestionListItems({ userId }: { userId: User["uid"] }) {
   return prisma.question.findMany({
     where: { userId },
     select: { id: true, question: true },
@@ -22,12 +23,14 @@ export function getQuestionListItems({ userId }: { userId: User["id"] }) {
 
 export async function getRandomQuestions(ids?: string[]) {
   const count = await prisma.question.count();
+
   const skip = Math.floor(Math.random() * count);
+  console.log("🚀 ~ skip", skip);
+
   const randomQuestions = await prisma.question.findMany({
     ...(ids && { where: { id: { not: { in: ids } } } }),
     take: 5,
     skip,
-    include: { user: true },
   });
 
   return randomQuestions;
@@ -37,16 +40,12 @@ export function createQuestion({
   question,
   userId,
 }: Pick<Question, "question"> & {
-  userId: User["id"];
+  userId: User["uid"];
 }) {
   return prisma.question.create({
     data: {
       question,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      userId,
     },
   });
 }
@@ -56,7 +55,7 @@ export function updateQuestion({
   question,
   userId,
 }: Pick<Question, "question" | "id"> & {
-  userId: User["id"];
+  userId: User["uid"];
 }) {
   return prisma.question.update({
     where: {
@@ -64,11 +63,7 @@ export function updateQuestion({
     },
     data: {
       question,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      userId,
     },
   });
 }
@@ -76,13 +71,13 @@ export function updateQuestion({
 export function deleteQuestion({
   id,
   userId,
-}: Pick<Question, "id"> & { userId: User["id"] }) {
+}: Pick<Question, "id"> & { userId: User["uid"] }) {
   return prisma.question.deleteMany({
     where: { id, userId },
   });
 }
 
-export function deleteQuestions({ userId }: { userId: User["id"] }) {
+export function deleteQuestions({ userId }: { userId: User["uid"] }) {
   return prisma.question.deleteMany({
     where: { userId },
   });

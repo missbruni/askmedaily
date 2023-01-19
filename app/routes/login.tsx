@@ -7,15 +7,12 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
 
-import { createUserSession, getUserId } from "~/session.server";
-import { verifyLogin } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
+import { getUser, login } from "~/auth.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  return redirect("/maintenance");
-
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
+export const loader: LoaderFunction = async () => {
+  const user = await getUser();
+  if (user) return redirect("/");
   return json({});
 };
 
@@ -30,8 +27,8 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/notes");
-  const remember = formData.get("remember");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
+  // const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -54,7 +51,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await verifyLogin(email, password);
+  const user = await login(email, password);
 
   if (!user) {
     return json<ActionData>(
@@ -63,12 +60,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: remember === "on" ? true : false,
-    redirectTo,
-  });
+  return redirect(redirectTo);
 };
 
 export const meta: MetaFunction = () => {

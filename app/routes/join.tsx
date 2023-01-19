@@ -7,16 +7,13 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
 
-import { getUserId, createUserSession } from "~/session.server";
-
-import { createUser, getUserByEmail } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
+import { debug } from "~/debug";
+import { createUser, getUser } from "~/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return redirect("/maintenance");
-
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  const user = await getUser();
+  if (user) return redirect("/");
   return json({});
 };
 
@@ -54,22 +51,23 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
-    return json<ActionData>(
-      { errors: { email: "A user already exists with this email" } },
-      { status: 400 }
-    );
-  }
+  // const existingUser = await getUserByEmail(email);
+  // if (existingUser) {
+  //   return json<ActionData>(
+  //     { errors: { email: "A user already exists with this email" } },
+  //     { status: 400 }
+  //   );
+  // }
 
   const user = await createUser(email, password);
+  if (user) {
+    return redirect(redirectTo);
+  }
 
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: false,
-    redirectTo,
-  });
+  return json<ActionData>(
+    { errors: { email: "There has been an error." } },
+    { status: 500 }
+  );
 };
 
 export const meta: MetaFunction = () => {

@@ -59,7 +59,6 @@ function Deck({
           rot,
           scale,
           delay: undefined,
-          // config: { friction: 50, tension: active ? 800 : isGone ? 200 : 500 },
           config: { friction: 50, tension: active ? 800 : isGone ? 200 : 500 },
         };
       });
