@@ -27,7 +27,6 @@ export async function getRandomQuestions(ids?: string[]) {
     ...(ids && { where: { id: { not: { in: ids } } } }),
     take: 5,
     skip,
-    include: { user: true },
   });
 
   return randomQuestions;

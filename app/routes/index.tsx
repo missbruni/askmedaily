@@ -50,7 +50,7 @@ export default function Index() {
       <main className="h-full w-full bg-[aliceblue]">
         <Deck
           onFinish={handleReshuffle}
-          cards={questions.map((q: Question & { user: User }) => (
+          cards={questions.map((q: Question) => (
             <QuestionCard key={q.id} question={q} />
           ))}
         ></Deck>
