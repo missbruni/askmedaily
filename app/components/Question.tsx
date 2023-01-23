@@ -1,8 +1,8 @@
 import React from "react";
-import { Question } from "@prisma/client";
+import { Question as QuestionModel } from "@prisma/client";
 
 type QuestionProps = {
-  question: Question;
+  question: QuestionModel;
 };
 
 const Question: React.FC<QuestionProps> = ({ question }) => {

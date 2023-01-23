@@ -8,17 +8,26 @@ import invariant from "tiny-invariant";
 import { updateQuestion } from "~/models/question.server";
 import { deleteQuestion } from "~/models/question.server";
 import { getQuestion } from "~/models/question.server";
-import { requireUserId } from "~/session.server";
+// import { requireUserId } from "~/session.server";
+import { getUser } from "~/auth.server";
 
 type LoaderData = {
   question: Question;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ params }) => {
+  const user = await getUser();
   invariant(params.questionId, "questionId not found");
 
-  const question = await getQuestion({ userId, id: params.questionId });
+  if (!user) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  const question = await getQuestion({
+    userId: user?.uid,
+    id: params.questionId,
+  });
+
   if (!question) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -26,7 +35,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+  const user = await getUser();
   const formData = await request.formData();
   const newQuestion = formData.get("question");
 
@@ -39,15 +48,15 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   invariant(params.questionId, "questionId not found");
 
-  if (formData.get("_method") === "delete") {
-    await deleteQuestion({ userId, id: params.questionId });
+  if (user && formData.get("_method") === "delete") {
+    await deleteQuestion({ userId: user.uid, id: params.questionId });
   }
 
-  if (formData.get("_method") === "save") {
+  if (user && formData.get("_method") === "save") {
     await updateQuestion({
       id: params.questionId,
       question: newQuestion,
-      userId,
+      userId: user.uid,
     });
   }
 
@@ -62,7 +71,7 @@ type ActionData = {
 
 export default function QuestionDetailsPage() {
   const actionData = useActionData() as ActionData;
-  const data = useLoaderData() as LoaderData;
+  const data = useLoaderData() as unknown as LoaderData;
   const questionRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {

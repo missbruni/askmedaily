@@ -12,9 +12,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { getUser } from "./auth.server";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-import { getUser } from "./session.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -30,11 +30,10 @@ type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  return null;
-  // return json<LoaderData>({
-  //   user: await getUser(request),
-  // });
+export const loader: LoaderFunction = async () => {
+  return json<LoaderData>({
+    user: await getUser(),
+  });
 };
 
 export default function App() {
