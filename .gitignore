@@ -15,4 +15,5 @@ README.local.md
 questiondump.sql
 questiondump.text
 app/notes.txt
-firebase_admin_key.json
+firebase.json
+firebase_admin.base64

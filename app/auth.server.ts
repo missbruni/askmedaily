@@ -1,9 +1,6 @@
 import admin from "firebase-admin";
-import {
-  applicationDefault,
-  initializeApp as initializeAdminApp,
-} from "firebase-admin/app";
-import { initializeApp } from "firebase/app";
+import { initializeApp as initializeAdminApp } from "firebase-admin/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -25,44 +22,54 @@ const firebaseConfig = {
 };
 
 if (admin.apps.length === 0) {
+  const config = Buffer.from(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS!,
+    "base64"
+  ).toString("ascii");
+
+  console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
   initializeAdminApp({
-    credential: applicationDefault(),
+    credential: admin.credential.cert(JSON.parse(config)),
   });
 }
 
 let app: any;
-if (app?.apps?.length === 0) {
+if (getApps().length === 0) {
   app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
 }
 
+const auth = getAuth(app);
 const adminAuth = admin.auth();
 
 export function signUp(email: string, password: string) {
-  return createUserWithEmailAndPassword(getAuth(), email, password);
+  return createUserWithEmailAndPassword(auth, email, password);
 }
 
 export function signIn(email: string, password: string) {
-  return signInWithEmailAndPassword(getAuth(), email, password);
+  return signInWithEmailAndPassword(auth, email, password);
 }
 
 export function logoutFirebase() {
-  return signOut(getAuth());
+  return signOut(auth);
 }
 
 export async function sendResetEmail(email: string) {
-  return await sendPasswordResetEmail(getAuth(), email);
+  return await sendPasswordResetEmail(auth, email);
 }
 
 export async function resetPassword(email: string) {
-  return await sendPasswordResetEmail(getAuth(), email);
+  return await sendPasswordResetEmail(auth, email);
 }
 
 export async function verifyPasswordCode(code: string) {
-  return await verifyPasswordResetCode(getAuth(), code);
+  return await verifyPasswordResetCode(auth, code);
 }
 
 export async function confirmPassword(code: string, password: string) {
-  return await confirmPasswordReset(getAuth(), code, password);
+  return await confirmPasswordReset(auth, code, password);
 }
 
 export async function getSessionToken(idToken: string) {
