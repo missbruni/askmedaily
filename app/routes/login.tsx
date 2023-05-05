@@ -4,7 +4,6 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
 import { signIn } from "~/auth.server";
 import { createUserSession } from "~/session.server";
-
 import { safeRedirect, validateEmail } from "~/utils";
 
 interface ActionData {
@@ -41,14 +40,13 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const { user } = await signIn(email, password);
-  if (user) {
-    const token = await user.getIdToken();
-
-    return createUserSession(token, "/questions");
-  }
-
-  if (!user) {
+  try {
+    const { user } = await signIn(email, password);
+    if (user) {
+      const token = await user.getIdToken();
+      return createUserSession(token, "/questions");
+    }
+  } catch (error) {
     return json<ActionData>(
       { errors: { email: "Invalid email or password" } },
       { status: 400 }
@@ -106,12 +104,15 @@ export default function LoginPage() {
                     aria-describedby="email-error"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
                   />
-                  {actionData?.errors?.email && (
-                    <div className="pt-1 text-red-700" id="email-error">
-                      {actionData.errors.email}
-                    </div>
-                  )}
                 </div>
+                {actionData?.errors?.email && (
+                  <div
+                    className="mt-2 rounded-md bg-red-100 px-3 py-3 text-sm text-red-500"
+                    id="reset-password-error"
+                  >
+                    {actionData.errors.email}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -134,12 +135,15 @@ export default function LoginPage() {
                     aria-describedby="password-error"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
                   />
-                  {actionData?.errors?.password && (
-                    <div className="pt-1 text-red-700" id="password-error">
-                      {actionData.errors.password}
-                    </div>
-                  )}
                 </div>
+                {actionData?.errors?.password && (
+                  <div
+                    className="mt-2 rounded-md bg-red-100 px-3 py-3 text-sm text-red-500"
+                    id="reset-password-error"
+                  >
+                    {actionData.errors.password}
+                  </div>
+                )}
               </div>
 
               <input type="hidden" name="redirectTo" value={redirectTo} />
