@@ -2,7 +2,7 @@ import type { ActionFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import * as React from "react";
-import { getUser } from "~/auth.server";
+// import { getUser } from "~/auth.client";
 
 import { createQuestion } from "~/models/question.server";
 
@@ -13,11 +13,11 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await getUser();
+  // const user = await getUser();
 
-  if (!user) {
-    return redirect("/");
-  }
+  // if (!user) {
+  //   return redirect("/");
+  // }
 
   const formData = await request.formData();
   const newQuestion = formData.get("question");
@@ -29,7 +29,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await createQuestion({ question: newQuestion, userId: user.uid });
+  // await createQuestion({ question: newQuestion, userId: user.uid });
   return redirect(`/questions`);
 };
 

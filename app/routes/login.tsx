@@ -1,20 +1,11 @@
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
+import { signIn } from "~/auth.server";
+import { createUserSession } from "~/session.server";
 
 import { safeRedirect, validateEmail } from "~/utils";
-import { getUser, login } from "~/auth.server";
-
-export const loader: LoaderFunction = async () => {
-  const user = await getUser();
-  if (user) return redirect("/");
-  return json({});
-};
 
 interface ActionData {
   errors?: {
@@ -51,7 +42,12 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await login(email, password);
+  const { user } = await signIn(email, password);
+  if (user) {
+    const token = await user.getIdToken();
+
+    return createUserSession(token, "/questions");
+  }
 
   if (!user) {
     return json<ActionData>(

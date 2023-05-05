@@ -8,6 +8,7 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
 
 import { safeRedirect, validateEmail } from "~/utils";
+<<<<<<< Updated upstream
 import { debug } from "~/debug";
 import { createUser, getUser } from "~/auth.server";
 
@@ -16,6 +17,16 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (user) return redirect("/");
   return json({});
 };
+=======
+import { signUp } from "~/auth.server";
+import { createUserSession } from "~/session.server";
+
+// export const loader: LoaderFunction = async ({ request }) => {
+// const user = await getUser();
+// if (user) return redirect("/");
+// return json({});
+// };
+>>>>>>> Stashed changes
 
 interface ActionData {
   errors: {
@@ -28,7 +39,6 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -59,9 +69,10 @@ export const action: ActionFunction = async ({ request }) => {
   //   );
   // }
 
-  const user = await createUser(email, password);
+  const { user } = await signUp(email, password);
   if (user) {
-    return redirect(redirectTo);
+    const token = await user.getIdToken();
+    return createUserSession(token, "/questions");
   }
 
   return json<ActionData>(
