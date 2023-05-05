@@ -53,8 +53,8 @@ jobs:
       - name: 🔎 Type check
         run: npm run typecheck --if-present
 
-      - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
+      # - name: 🛠 Setup Database
+      #   run: npx prisma migrate reset --force
 
       - name: ⚙️ Build
         run: npm run build
