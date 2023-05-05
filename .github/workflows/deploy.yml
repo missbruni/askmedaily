@@ -48,6 +48,9 @@ jobs:
         with:
           useLockFile: false
 
+      - name: 🔎 Generate Prisma Types
+        run: npx prisma generate
+
       - name: 🔎 Type check
         run: npm run typecheck --if-present
 
