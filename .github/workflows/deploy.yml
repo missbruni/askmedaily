@@ -50,15 +50,14 @@ jobs:
 
       - name: 🔎 Generate Prisma Types
         run: npx prisma generate
-
       - name: 🔎 Type check
         run: npm run typecheck --if-present
 
-  #     - name: 🛠 Setup Database
-  #       run: npx prisma migrate reset --force
+      - name: 🛠 Setup Database
+        run: npx prisma migrate reset --force
 
-  #     - name: ⚙️ Build
-  #       run: npm run build
+      - name: ⚙️ Build
+        run: npm run build
 
   #     - name: 🌳 Cypress run
   #       uses: cypress-io/github-action@v3
