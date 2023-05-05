@@ -1,6 +1,6 @@
 import { useMatches } from "@remix-run/react";
-import { User } from "firebase/auth";
 import { useMemo } from "react";
+import type { User } from "firebase/auth";
 
 const DEFAULT_REDIRECT = "/";
 

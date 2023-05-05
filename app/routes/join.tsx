@@ -1,32 +1,22 @@
+import * as React from "react";
+
 import type {
   ActionFunction,
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import * as React from "react";
+import { json, redirect } from "@remix-run/node";
 
+import { createUserSession, getUserSession } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
-<<<<<<< Updated upstream
-import { debug } from "~/debug";
-import { createUser, getUser } from "~/auth.server";
+import { signUp } from "~/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await getUser();
+  const user = await getUserSession(request);
   if (user) return redirect("/");
   return json({});
 };
-=======
-import { signUp } from "~/auth.server";
-import { createUserSession } from "~/session.server";
-
-// export const loader: LoaderFunction = async ({ request }) => {
-// const user = await getUser();
-// if (user) return redirect("/");
-// return json({});
-// };
->>>>>>> Stashed changes
 
 interface ActionData {
   errors: {

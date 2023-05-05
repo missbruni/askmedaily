@@ -3,15 +3,11 @@ import React from "react";
 import { Link } from "@remix-run/react";
 import LogoutButton from "./Logout";
 import { useMedia } from "react-use";
-<<<<<<< Updated upstream
-import { User } from "firebase/auth";
-=======
->>>>>>> Stashed changes
 
 type AppBarProps = {
-  userInitial?: string;
+  email?: string;
 };
-const AppBar: React.FC<AppBarProps> = ({ userInitial }) => {
+const AppBar: React.FC<AppBarProps> = ({ email }) => {
   const isDownSm = useMedia("(max-width: 480px)");
 
   return (
@@ -20,7 +16,7 @@ const AppBar: React.FC<AppBarProps> = ({ userInitial }) => {
         <Link to="/.">{isDownSm ? "AMD" : "AskMeDaily"}</Link>
       </h1>
       <div className="flex items-center gap-2">
-        {userInitial ? (
+        {email ? (
           <>
             <Link
               to="/questions"
@@ -30,7 +26,7 @@ const AppBar: React.FC<AppBarProps> = ({ userInitial }) => {
             </Link>
             <LogoutButton />
             <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 align-middle text-white">
-              <p className="text-2xl uppercase">{userInitial}</p>
+              <p className="text-2xl uppercase">{email[0]}</p>
             </div>
           </>
         ) : (

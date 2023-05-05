@@ -33,32 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 🛑 Cancel Previous Runs
-<<<<<<< Updated upstream
-        uses: styfle/cancel-workflow-action@0.9.1
-
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-
-      - name: 🔎 Type check
-        run: npm run typecheck --if-present
-
-  # vitest:
-  #   name: ⚡ Vitest
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
-=======
         uses: styfle/cancel-workflow-action@0.11.0
->>>>>>> Stashed changes
 
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
@@ -68,34 +43,6 @@ jobs:
         with:
           node-version: 16
 
-<<<<<<< Updated upstream
-  #     - name: 📥 Download deps
-  #       uses: bahmutov/npm-install@v1
-
-  #     - name: ⚡ Run vitest
-  #       run: npm run test -- --coverage
-
-  # cypress:
-  #   name: ⚫️ Cypress
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
-
-  #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
-
-  #     - name: 🏄 Copy test env vars
-  #       run: cp .env.example .env
-
-  #     - name: ⎔ Setup node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-
-  #     - name: 📥 Download deps
-  #       uses: bahmutov/npm-install@v1
-=======
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
         with:
@@ -103,7 +50,6 @@ jobs:
 
       - name: 🔎 Type check
         run: npm run typecheck --if-present
->>>>>>> Stashed changes
 
   #     - name: 🛠 Setup Database
   #       run: npx prisma migrate reset --force

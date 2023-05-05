@@ -20,50 +20,6 @@ export const storage = createCookieSessionStorage({
   },
 });
 
-// export async function getSession(request: Request) {
-//   const cookie = request.headers.get("Cookie");
-//   return storage.getSession(cookie);
-// }
-
-// export async function getUserId(
-//   request: Request
-// ): Promise<User["id"] | undefined> {
-//   const session = await getSession(request);
-//   const userId = session.get(USER_SESSION_KEY);
-//   return userId;
-// }
-
-// export async function getUser(request: Request) {
-//   const userId = await getUserId(request);
-//   if (userId === undefined) return null;
-
-//   const user = await getUserById(userId);
-//   if (user) return user;
-
-//   throw await logout(request);
-// }
-
-// export async function requireUserId(
-//   request: Request,
-//   redirectTo: string = new URL(request.url).pathname
-// ) {
-//   const userId = await getUserId(request);
-//   if (!userId) {
-//     const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-//     throw redirect(`/login?${searchParams}`);
-//   }
-//   return userId;
-// }
-
-// export async function requireUser(request: Request) {
-//   const userId = await requireUserId(request);
-
-//   const user = await getUserById(userId);
-//   if (user) return user;
-
-//   throw await logout(request);
-// }
-
 async function destroySession(request: Request) {
   const session = await storage.getSession(request.headers.get("Cookie"));
   const newCookie = await storage.destroySession(session);

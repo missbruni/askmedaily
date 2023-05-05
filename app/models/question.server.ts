@@ -1,11 +1,6 @@
-<<<<<<< Updated upstream
-import type { Question } from "@prisma/client";
-import { User } from "firebase/auth";
-=======
 import { Question } from "@prisma/client";
 import type { User } from "firebase/auth";
 
->>>>>>> Stashed changes
 import { prisma } from "~/db.server";
 
 export function getQuestion({

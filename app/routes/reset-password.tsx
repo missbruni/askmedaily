@@ -13,21 +13,17 @@ import {
 } from "@remix-run/react";
 
 import * as React from "react";
-
-// import { confirmPassword, getUser, verifyPasswordCode } from "~/auth.client";
+import { confirmPassword, verifyPasswordCode } from "~/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  // const user = await getUser();
-  // if (user) return redirect("/");
-
   const url = new URL(request.url);
   const code = url.searchParams.get("oobCode");
 
   let email = "";
   if (code) {
     //TODO: handle failure
-    // email = await verifyPasswordCode(code);
-    console.log("🚀 ~ email", email);
+    // add snackbar or message if the code is unverified
+    email = await verifyPasswordCode(code);
   }
 
   if (!email) redirect("/login");
@@ -53,7 +49,6 @@ export const action: ActionFunction = async ({ request }) => {
   const confirmedPassword = formData.get("confirm-password");
 
   if (typeof password === "string" && password !== confirmedPassword) {
-    console.log("password is not matching...");
     return json<ActionData>(
       { errors: { password: "Passwords do not match." } },
       { status: 400 }
@@ -65,7 +60,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof password === "string" && code) {
     try {
-      // await confirmPassword(code, password);
+      await confirmPassword(code, password);
       return redirect("/login?reset=success");
     } catch {}
   }

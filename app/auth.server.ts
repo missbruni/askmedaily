@@ -7,15 +7,15 @@ import { initializeApp } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-<<<<<<< Updated upstream
-=======
+  verifyPasswordResetCode,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
   getAuth,
   signOut,
->>>>>>> Stashed changes
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCFfzm1FG6gL_dXkr3T79f9jAtJtvHY75s",
+  apiKey: process.env.FIREBASE_API_KEY!,
   authDomain: "ask-me-daily.firebaseapp.com",
   projectId: "ask-me-daily",
   storageBucket: "ask-me-daily.appspot.com",
@@ -31,8 +31,7 @@ if (admin.apps.length === 0) {
 }
 
 let app: any;
-
-if (!app?.apps?.length) {
+if (app?.apps?.length === 0) {
   app = initializeApp(firebaseConfig);
 }
 
@@ -50,6 +49,22 @@ export function logoutFirebase() {
   return signOut(getAuth());
 }
 
+export async function sendResetEmail(email: string) {
+  return await sendPasswordResetEmail(getAuth(), email);
+}
+
+export async function resetPassword(email: string) {
+  return await sendPasswordResetEmail(getAuth(), email);
+}
+
+export async function verifyPasswordCode(code: string) {
+  return await verifyPasswordResetCode(getAuth(), code);
+}
+
+export async function confirmPassword(code: string, password: string) {
+  return await confirmPasswordReset(getAuth(), code, password);
+}
+
 export async function getSessionToken(idToken: string) {
   const decodedToken = await adminAuth.verifyIdToken(idToken);
 
@@ -61,30 +76,4 @@ export async function getSessionToken(idToken: string) {
   return adminAuth.createSessionCookie(idToken, { expiresIn: twoWeeks });
 }
 
-<<<<<<< Updated upstream
-export async function getUser() {
-  return auth.currentUser;
-}
-
-export async function login(email: string, password: string) {
-  const userCredential = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-
-  if (userCredential) {
-    const user = userCredential.user;
-
-    return user;
-  } else {
-    return null;
-  }
-}
-
-export async function logout() {
-  await signOut(auth);
-}
-=======
 export { adminAuth };
->>>>>>> Stashed changes

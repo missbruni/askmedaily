@@ -1,41 +1,41 @@
 import React from "react";
-import { Question } from "@prisma/client";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
+
+import type { Question } from "@prisma/client";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 import { updateQuestion } from "~/models/question.server";
 import { deleteQuestion } from "~/models/question.server";
 import { getQuestion } from "~/models/question.server";
-// import { requireUserId } from "~/session.server";
-// import { getUser } from "~/auth.client";
+
+import { getUserSession } from "~/session.server";
 
 type LoaderData = {
   question: Question;
 };
 
-// export const loader: LoaderFunction = async ({ params }) => {
-// const user = await getUser();
-// invariant(params.questionId, "questionId not found");
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const user = await getUserSession(request);
+  invariant(params.questionId, "questionId not found");
 
-// if (!user) {
-//   throw new Response("Not Found", { status: 404 });
-// }
+  if (!user) throw new Response("Not Found", { status: 404 });
 
-// const question = await getQuestion({
-//   userId: user?.uid,
-//   id: params.questionId,
-// });
+  const question = await getQuestion({
+    userId: user?.uid,
+    id: params.questionId,
+  });
 
-// if (!question) {
-//   throw new Response("Not Found", { status: 404 });
-// }
-// return json<LoaderData>({ question });
-// };
+  if (!question) throw new Response("Not Found", { status: 404 });
+  return json<LoaderData>({ question });
+};
 
 export const action: ActionFunction = async ({ request, params }) => {
-  // const user = await getUser();
+  const user = await getUserSession(request);
+
+  if (!user) throw new Response("Not Authorized", { status: 401 });
+
   const formData = await request.formData();
   const newQuestion = formData.get("question");
 
@@ -48,17 +48,15 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   invariant(params.questionId, "questionId not found");
 
-  // if (user && formData.get("_method") === "delete") {
-  //   await deleteQuestion({ userId: user.uid, id: params.questionId });
-  // }
-
-  // if (user && formData.get("_method") === "save") {
-  //   await updateQuestion({
-  //     id: params.questionId,
-  //     question: newQuestion,
-  //     userId: user.uid,
-  //   });
-  // }
+  if (formData.get("_method") === "delete") {
+    await deleteQuestion({ userId: user.uid, id: params.questionId });
+  } else if (user && formData.get("_method") === "save") {
+    await updateQuestion({
+      id: params.questionId,
+      question: newQuestion,
+      userId: user.uid,
+    });
+  }
 
   return redirect("/questions");
 };

@@ -1,3 +1,4 @@
+import * as React from "react";
 import type {
   ActionFunction,
   LoaderFunction,
@@ -5,18 +6,17 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import * as React from "react";
 import { UilInfoCircle } from "@iconscout/react-unicons";
 
-// import { getUser, sendResetEmail } from "~/auth.client";
-
 import { validateEmail } from "~/utils";
+import { getUserSession } from "~/session.server";
+import { sendResetEmail } from "~/auth.server";
 
-// export const loader: LoaderFunction = async ({ request }) => {
-// const user = await getUser();
-// if (user) return redirect("/");
-// return json({});
-// };
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUserSession(request);
+  if (user) return redirect("/");
+  return json({});
+};
 
 interface ActionData {
   data?: string;
@@ -36,7 +36,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  // await sendResetEmail(email);
+  await sendResetEmail(email);
   return json<ActionData>({
     data: "A reset password link will be sent if this account is recognized.",
   });
@@ -50,7 +50,7 @@ export const meta: MetaFunction = () => {
 
 export default function ForgotPage() {
   const [searchParams] = useSearchParams();
-  // const redirectTo = searchParams.get("redirectTo") || "/questions";
+  const redirectTo = searchParams.get("redirectTo") || "/questions";
   const actionData = useActionData() as ActionData;
 
   const emailRef = React.useRef<HTMLInputElement>(null);
