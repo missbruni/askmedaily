@@ -9,7 +9,7 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 
 import { createUserSession, getUserSession } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { validateEmail } from "~/utils";
 import { signUp } from "~/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {

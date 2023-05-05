@@ -50,7 +50,6 @@ export const meta: MetaFunction = () => {
 
 export default function ForgotPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/questions";
   const actionData = useActionData() as ActionData;
 
   const emailRef = React.useRef<HTMLInputElement>(null);

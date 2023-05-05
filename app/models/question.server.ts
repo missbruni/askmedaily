@@ -1,4 +1,4 @@
-import { Question } from "@prisma/client";
+import type { Question } from "@prisma/client";
 import type { User } from "firebase/auth";
 
 import { prisma } from "~/db.server";

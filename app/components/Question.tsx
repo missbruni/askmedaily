@@ -1,5 +1,5 @@
 import React from "react";
-import { Question as QuestionModel } from "@prisma/client";
+import type { Question as QuestionModel } from "@prisma/client";
 
 type QuestionProps = {
   question: QuestionModel;

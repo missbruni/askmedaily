@@ -1,10 +1,7 @@
-import { Question } from "@prisma/client";
+import type { Question } from "@prisma/client";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-} from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import React from "react";
 
 import AppBar from "~/components/AppBar";
