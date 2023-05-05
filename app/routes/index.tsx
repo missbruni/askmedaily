@@ -1,22 +1,19 @@
-import { Question } from "@prisma/client";
+import type { Question } from "@prisma/client";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-} from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import React from "react";
 
 import AppBar from "~/components/AppBar";
 import Deck from "~/components/Deck";
 
-import QuestionCard from "~/components/Question";
 import { getRandomQuestions } from "~/models/question.server";
+import { getUserSession } from "~/session.server";
+import QuestionCard from "~/components/Question";
 
-import { useOptionalUser } from "~/utils";
-
-export const loader: LoaderFunction = async () => {
-  return { questions: await getRandomQuestions() };
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUserSession(request);
+  return { questions: await getRandomQuestions(), user: user?.email };
 };
 
 type ActionData = { questions: Question[] };
@@ -30,7 +27,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  const user = useOptionalUser();
   const loaderData = useLoaderData();
   const actionData = useActionData<ActionData>();
 
@@ -45,7 +41,7 @@ export default function Index() {
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <AppBar user={user} />
+      <AppBar email={loaderData.user} />
       <main className="h-full w-full bg-[aliceblue]">
         <Deck
           onFinish={handleReshuffle}

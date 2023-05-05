@@ -10,5 +10,9 @@ node_modules
 /prisma/data.db-journal
 
 /app/styles/tailwind.css
-/app/auth/*
+app/auth/*
 README.local.md
+questiondump.sql
+questiondump.text
+app/notes.txt
+firebase_admin_key.json

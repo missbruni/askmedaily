@@ -1,30 +1,37 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
-import { useUser } from "~/utils";
 import {
   deleteQuestions,
   getQuestionListItems,
 } from "~/models/question.server";
+import { getUserSession } from "~/session.server";
 import AppBar from "~/components/AppBar";
-import { getUser } from "~/auth.server";
 
 type LoaderData = {
   questionListItems: Awaited<ReturnType<typeof getQuestionListItems>>;
+  user?: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await getUser();
+  const user = await getUserSession(request);
+
   if (user) {
-    const questionListItems = await getQuestionListItems({ userId: user?.uid });
-    return json<LoaderData>({ questionListItems });
+    const questionListItems = await getQuestionListItems(user.uid);
+    return json<LoaderData>({ questionListItems, user: user?.email });
   }
-  return redirect("/logout");
+
+  return redirect("/");
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await getUser();
+  const user = await getUserSession(request);
+
   if (user) {
     await deleteQuestions({ userId: user?.uid });
     return redirect("/");
@@ -33,11 +40,10 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function QuestionsPage() {
   const data = useLoaderData() as LoaderData;
-  const user = useUser();
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <AppBar user={user} />
+      <AppBar email={data.user} />
 
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
@@ -52,7 +58,7 @@ export default function QuestionsPage() {
           ) : (
             <>
               <ol className="h-[calc(100%-188px)] overflow-scroll">
-                {data.questionListItems.map((question) => (
+                {data.questionListItems.map((question: any) => (
                   <li key={question.id}>
                     <NavLink
                       to={question.id}

@@ -1,10 +1,22 @@
-import type { ActionFunction } from "@remix-run/node";
+import * as React from "react";
+
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import * as React from "react";
-import { getUser } from "~/auth.server";
 
 import { createQuestion } from "~/models/question.server";
+import { getUserSession } from "~/session.server";
+
+type LoaderData = {
+  user?: string;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUserSession(request);
+
+  if (!user) return redirect("/");
+  return json<LoaderData>({ user: user?.email });
+};
 
 type ActionData = {
   errors?: {
@@ -13,11 +25,9 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await getUser();
+  const user = await getUserSession(request);
 
-  if (!user) {
-    return redirect("/");
-  }
+  if (!user) return redirect("/");
 
   const formData = await request.formData();
   const newQuestion = formData.get("question");

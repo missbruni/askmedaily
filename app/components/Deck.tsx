@@ -89,13 +89,12 @@ function Deck({
         >
           {/* This is the card itself, we're binding our gesture to it (and inject its index so we know which is which) */}
           <animated.div
-            className="xs:w-[300px] relative inset-0 w-[700px] bg-[#252525] shadow-xl sm:overflow-hidden sm:rounded-2xl"
+            className="xs:w-[300px] relative inset-0  h-[500px] overflow-hidden rounded-2xl bg-[#252525] shadow-xl sm:w-[500px] md:w-[600px]"
             {...bind(i)}
             style={{
               transform: interpolate([rot, scale], trans),
               touchAction: "none",
-              height: "85vh",
-              maxHeight: "570px",
+              maxHeight: "500px",
               willChange: "transform",
               boxShadow:
                 "0 12.5px 100px -10px rgba(50, 50, 73, 0.4),0 10px 10px -10px rgba(50, 50, 73, 0.3)",

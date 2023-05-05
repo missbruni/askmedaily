@@ -1,20 +1,11 @@
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
+import { signIn } from "~/auth.server";
+import { createUserSession } from "~/session.server";
 
 import { safeRedirect, validateEmail } from "~/utils";
-import { getUser, login } from "~/auth.server";
-
-export const loader: LoaderFunction = async () => {
-  const user = await getUser();
-  if (user) return redirect("/");
-  return json({});
-};
 
 interface ActionData {
   errors?: {
@@ -28,7 +19,6 @@ export const action: ActionFunction = async ({ request }) => {
   const email = formData.get("email");
   const password = formData.get("password");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
-  // const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -51,7 +41,12 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await login(email, password);
+  const { user } = await signIn(email, password);
+  if (user) {
+    const token = await user.getIdToken();
+
+    return createUserSession(token, "/questions");
+  }
 
   if (!user) {
     return json<ActionData>(
@@ -75,6 +70,7 @@ export default function LoginPage() {
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const resetPassword = searchParams.get("reset");
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
@@ -88,7 +84,7 @@ export default function LoginPage() {
     <div className="flex min-h-full flex-col justify-center bg-[aliceblue]">
       <div className="max-w-m mx-auto w-[400px] px-8">
         <div className="relative inset-0 bg-white shadow-xl sm:overflow-hidden sm:rounded-2xl">
-          <div className="lg:pb-18 flex flex-col items-center justify-center gap-20 px-4 pt-16 pb-8 sm:px-6 sm:pb-12 lg:px-8 lg:pt-32">
+          <div className="lg:pb-18 flex flex-col items-center justify-center gap-20 px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8 lg:pt-32">
             <Form method="post" className="w-full space-y-6">
               <div>
                 <label
@@ -154,19 +150,31 @@ export default function LoginPage() {
                 Log in
               </button>
               <div className="flex flex-col items-center gap-4">
-                <div className="flex self-end">
-                  <input
-                    id="remember"
-                    name="remember"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="remember"
-                    className="ml-2 block text-sm text-gray-900"
+                {resetPassword === "failed" && (
+                  <div
+                    className="rounded-md bg-red-100 px-3 py-3 text-sm text-red-500"
+                    id="reset-password-error"
                   >
-                    Remember me
-                  </label>
+                    Password update could not be processed at this time. Please
+                    try again later.
+                  </div>
+                )}
+                {resetPassword === "success" && (
+                  <div className="rounded-md bg-green-100 px-3 py-3 text-sm text-gray-500">
+                    Password has been updated, you can now login with your new
+                    credentials.
+                  </div>
+                )}
+                <div className="text-center text-sm text-gray-500">
+                  <Link
+                    className="text-blue-500 underline"
+                    to={{
+                      pathname: "/forgot",
+                      search: searchParams.toString(),
+                    }}
+                  >
+                    Forgot password
+                  </Link>
                 </div>
                 <div className="text-center text-sm text-gray-500">
                   Don't have an account?{" "}

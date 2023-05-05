@@ -1,18 +1,19 @@
+import * as React from "react";
+
 import type {
   ActionFunction,
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import * as React from "react";
+import { json, redirect } from "@remix-run/node";
 
-import { safeRedirect, validateEmail } from "~/utils";
-import { debug } from "~/debug";
-import { createUser, getUser } from "~/auth.server";
+import { createUserSession, getUserSession } from "~/session.server";
+import { validateEmail } from "~/utils";
+import { signUp } from "~/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await getUser();
+  const user = await getUserSession(request);
   if (user) return redirect("/");
   return json({});
 };
@@ -28,7 +29,6 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -59,9 +59,10 @@ export const action: ActionFunction = async ({ request }) => {
   //   );
   // }
 
-  const user = await createUser(email, password);
+  const { user } = await signUp(email, password);
   if (user) {
-    return redirect(redirectTo);
+    const token = await user.getIdToken();
+    return createUserSession(token, "/questions");
   }
 
   return json<ActionData>(

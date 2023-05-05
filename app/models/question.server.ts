@@ -1,5 +1,6 @@
 import type { Question } from "@prisma/client";
-import { User } from "firebase/auth";
+import type { User } from "firebase/auth";
+
 import { prisma } from "~/db.server";
 
 export function getQuestion({
@@ -13,7 +14,7 @@ export function getQuestion({
   });
 }
 
-export function getQuestionListItems({ userId }: { userId: User["uid"] }) {
+export function getQuestionListItems(userId: string) {
   return prisma.question.findMany({
     where: { userId },
     select: { id: true, question: true },
@@ -25,7 +26,6 @@ export async function getRandomQuestions(ids?: string[]) {
   const count = await prisma.question.count();
 
   const skip = Math.floor(Math.random() * count);
-  console.log("🚀 ~ skip", skip);
 
   const randomQuestions = await prisma.question.findMany({
     ...(ids && { where: { id: { not: { in: ids } } } }),
