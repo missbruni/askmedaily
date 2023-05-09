@@ -1,10 +1,6 @@
-import {
-  ActionFunction,
-  LoaderFunction,
-  json,
-  redirect,
-} from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 
 import {
   deleteQuestions,

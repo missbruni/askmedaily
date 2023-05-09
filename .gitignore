@@ -17,3 +17,4 @@ questiondump.text
 app/notes.txt
 firebase.json
 firebase_admin.base64
+app/.DS_Store

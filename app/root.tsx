@@ -16,8 +16,16 @@ export const links: LinksFunction = () => {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "Daily Questions",
+  title: "Ask Me Daily",
+  description:
+    "A fun app that shuffles through random questions. Break the ice and ask away.",
   viewport: "width=device-width,initial-scale=1",
+  "og:image": "./images/askmedaily.png",
+  "og:type": "website",
+  "og:url": "https://askmedaily.co.uk",
+  "og:title": "Ask Me Daily",
+  "og:description":
+    "A fun app that shuffles through random questions. Break the ice and ask away.",
 });
 
 export default function App() {
