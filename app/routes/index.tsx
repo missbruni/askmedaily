@@ -7,13 +7,12 @@ import React from "react";
 import AppBar from "~/components/AppBar";
 import Deck from "~/components/Deck";
 
-import { getRandomQuestions, migrateQuestions } from "~/question.server";
+import { getRandomQuestions } from "~/question.server";
 import { getUserSession } from "~/session.server";
 import QuestionCard from "~/components/Question";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserSession(request);
-  await migrateQuestions();
 
   const questions = await getRandomQuestions();
   return { questions, user: user?.email };

@@ -1,6 +1,3 @@
-import type { Question as PrismaQuestion } from "@prisma/client";
-
-import { prisma } from "~/db.server";
 import { admin, db } from "~/firebase.server";
 
 const QUESTIONS = "questions";
@@ -12,22 +9,6 @@ export type Question = {
   created: string;
   userId: string;
 };
-
-export async function migrateQuestions() {
-  const questions = await prisma.question.findMany();
-  const batch = db.batch();
-  questions.forEach(
-    ({ createdAt, updatedAt, id, ...questionDoc }: PrismaQuestion) => {
-      var questionRef = db.collection(QUESTIONS).doc(id);
-      batch.set(questionRef, {
-        ...questionDoc,
-        created: createdAt,
-        modified: updatedAt,
-      });
-    }
-  );
-  await batch.commit();
-}
 
 export async function getQuestion(id: string) {
   const snapshot = await db.collection(QUESTIONS).doc(id).get();
