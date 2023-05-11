@@ -4,7 +4,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
-import { createQuestion } from "~/models/question.server";
+import { createQuestion } from "~/question.server";
 import { getUserSession } from "~/session.server";
 
 type LoaderData = {
@@ -39,7 +39,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await createQuestion({ question: newQuestion, userId: user.uid });
+  await createQuestion(newQuestion, user.uid);
   return redirect(`/questions`);
 };
 

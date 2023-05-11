@@ -65,10 +65,7 @@ function Deck({
 
       if (!active && gone.size === cards.length) {
         onFinish();
-        setTimeout(() => {
-          gone.clear();
-          api.start((i) => to(i));
-        }, 600);
+        gone.clear();
       }
     }
   );

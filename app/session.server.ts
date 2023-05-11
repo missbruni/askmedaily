@@ -1,7 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import { adminAuth, getSessionToken, logoutFirebase } from "./auth.server";
+import { adminAuth, getSessionToken, logoutFirebase } from "./firebase.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 

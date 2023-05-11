@@ -10,7 +10,7 @@ import { UilInfoCircle } from "@iconscout/react-unicons";
 
 import { validateEmail } from "~/utils";
 import { getUserSession } from "~/session.server";
-import { sendResetEmail } from "~/auth.server";
+import { sendResetEmail } from "~/firebase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserSession(request);

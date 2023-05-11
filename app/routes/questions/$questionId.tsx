@@ -1,15 +1,15 @@
 import React from "react";
 import { json, redirect } from "@remix-run/node";
 
-import type { Question } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { updateQuestion } from "~/models/question.server";
-import { deleteQuestion } from "~/models/question.server";
-import { getQuestion } from "~/models/question.server";
+import { updateQuestion } from "~/question.server";
+import { deleteQuestion } from "~/question.server";
+import { getQuestion } from "~/question.server";
 
+import type { Question } from "~/question.server";
 import { getUserSession } from "~/session.server";
 
 type LoaderData = {
@@ -22,10 +22,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!user) throw new Response("Not Found", { status: 404 });
 
-  const question = await getQuestion({
-    userId: user?.uid,
-    id: params.questionId,
-  });
+  const question = await getQuestion(params.questionId);
 
   if (!question) throw new Response("Not Found", { status: 404 });
   return json<LoaderData>({ question });
@@ -49,13 +46,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.questionId, "questionId not found");
 
   if (formData.get("_method") === "delete") {
-    await deleteQuestion({ userId: user.uid, id: params.questionId });
+    await deleteQuestion(params.questionId, user.uid);
   } else if (user && formData.get("_method") === "save") {
-    await updateQuestion({
-      id: params.questionId,
-      question: newQuestion,
-      userId: user.uid,
-    });
+    await updateQuestion(params.questionId, newQuestion, user.uid);
   }
 
   return redirect("/questions");

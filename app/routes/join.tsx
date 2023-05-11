@@ -10,7 +10,7 @@ import { json, redirect } from "@remix-run/node";
 
 import { createUserSession, getUserSession } from "~/session.server";
 import { validateEmail } from "~/utils";
-import { signUp } from "~/auth.server";
+import { signUp } from "~/firebase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserSession(request);
@@ -51,24 +51,38 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  // const existingUser = await getUserByEmail(email);
-  // if (existingUser) {
-  //   return json<ActionData>(
-  //     { errors: { email: "A user already exists with this email" } },
-  //     { status: 400 }
-  //   );
-  // }
+  try {
+    const { user } = await signUp(email, password);
+    if (user) {
+      const token = await user.getIdToken();
+      return createUserSession(token, "/questions");
+    }
+  } catch (error: any) {
+    let errorMessage;
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        errorMessage = `Email address ${email} already in use.`;
+        break;
+      case "auth/invalid-email":
+        errorMessage = `Email address ${email} is invalid.`;
+        break;
+      case "auth/operation-not-allowed":
+        errorMessage = `Error during sign up.`;
+        break;
+      case "auth/weak-password":
+        errorMessage =
+          "Password is not strong enough. Add additional characters including special characters and numbers.";
+        break;
+      default:
+        errorMessage = error.message;
+        break;
+    }
 
-  const { user } = await signUp(email, password);
-  if (user) {
-    const token = await user.getIdToken();
-    return createUserSession(token, "/questions");
+    return json<ActionData>(
+      { errors: { email: errorMessage } },
+      { status: 500 }
+    );
   }
-
-  return json<ActionData>(
-    { errors: { email: "There has been an error." } },
-    { status: 500 }
-  );
 };
 
 export const meta: MetaFunction = () => {
@@ -96,7 +110,7 @@ export default function Join() {
     <div className="flex min-h-full flex-col justify-center bg-[aliceblue]">
       <div className="max-w-m mx-auto w-[400px] px-8">
         <div className="relative inset-0 bg-white shadow-xl sm:overflow-hidden sm:rounded-2xl">
-          <div className="lg:pb-18 flex flex-col items-center justify-center gap-20 px-4 pt-16 pb-8 sm:px-6 sm:pb-12 lg:px-8 lg:pt-32">
+          <div className="lg:pb-18 flex flex-col items-center justify-center px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8">
             <Form method="post" className="w-full space-y-6">
               <div>
                 <label

@@ -27,10 +27,9 @@ if (admin.apps.length === 0) {
     "base64"
   ).toString("ascii");
 
-  console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-
   initializeAdminApp({
     credential: admin.credential.cert(JSON.parse(config)),
+    databaseURL: process.env.FIRESTORE_URL,
   });
 }
 
@@ -43,6 +42,7 @@ if (getApps().length === 0) {
 
 const auth = getAuth(app);
 const adminAuth = admin.auth();
+const db = admin.firestore();
 
 export function signUp(email: string, password: string) {
   return createUserWithEmailAndPassword(auth, email, password);
@@ -83,4 +83,4 @@ export async function getSessionToken(idToken: string) {
   return adminAuth.createSessionCookie(idToken, { expiresIn: twoWeeks });
 }
 
-export { adminAuth };
+export { adminAuth, admin, db };

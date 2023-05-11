@@ -13,7 +13,7 @@ import {
 } from "@remix-run/react";
 
 import * as React from "react";
-import { confirmPassword, verifyPasswordCode } from "~/auth.server";
+import { confirmPassword, verifyPasswordCode } from "~/firebase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);

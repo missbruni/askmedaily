@@ -2,15 +2,12 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 
-import {
-  deleteQuestions,
-  getQuestionListItems,
-} from "~/models/question.server";
+import { deleteQuestions, getQuestionsByUser } from "~/question.server";
 import { getUserSession } from "~/session.server";
 import AppBar from "~/components/AppBar";
 
 type LoaderData = {
-  questionListItems: Awaited<ReturnType<typeof getQuestionListItems>>;
+  questionListItems: Awaited<ReturnType<typeof getQuestionsByUser>>;
   user?: string;
 };
 
@@ -18,7 +15,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserSession(request);
 
   if (user) {
-    const questionListItems = await getQuestionListItems(user.uid);
+    const questionListItems = await getQuestionsByUser(user.uid);
     return json<LoaderData>({ questionListItems, user: user?.email });
   }
 
@@ -29,7 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await getUserSession(request);
 
   if (user) {
-    await deleteQuestions({ userId: user?.uid });
+    await deleteQuestions(user?.uid);
     return redirect("/");
   }
 };
