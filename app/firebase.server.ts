@@ -29,7 +29,7 @@ if (admin.apps.length === 0) {
 
   initializeAdminApp({
     credential: admin.credential.cert(JSON.parse(config)),
-    databaseURL: "ask-me-daily.europe-west2.firebasedatabase.app",
+    databaseURL: process.env.FIRESTORE_URL,
   });
 }
 
