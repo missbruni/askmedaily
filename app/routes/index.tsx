@@ -7,22 +7,24 @@ import React from "react";
 import AppBar from "~/components/AppBar";
 import Deck from "~/components/Deck";
 
-import { getRandomQuestions } from "~/models/question.server";
+import { getRandomQuestions, migrateQuestions } from "~/question.server";
 import { getUserSession } from "~/session.server";
 import QuestionCard from "~/components/Question";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserSession(request);
-  return { questions: await getRandomQuestions(), user: user?.email };
+  await migrateQuestions();
+
+  const questions = await getRandomQuestions();
+  return { questions, user: user?.email };
 };
 
 type ActionData = { questions: Question[] };
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
+  const ignoreIds = formData.get("ignoredIds") as string;
 
-  const questionIds = formData.get("questionIds") as string;
-  const newQuestions = await getRandomQuestions(questionIds.split(","));
-
+  const newQuestions = await getRandomQuestions(ignoreIds.split(","));
   return json({ questions: newQuestions });
 };
 
@@ -53,7 +55,7 @@ export default function Index() {
           <Form method="post" ref={formRef}>
             <input
               type="hidden"
-              name="questionIds"
+              name="ignoredIds"
               value={questions.map((q: Question) => q.id)}
             />
           </Form>

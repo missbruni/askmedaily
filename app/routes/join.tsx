@@ -10,7 +10,7 @@ import { json, redirect } from "@remix-run/node";
 
 import { createUserSession, getUserSession } from "~/session.server";
 import { validateEmail } from "~/utils";
-import { signUp } from "~/auth.server";
+import { signUp } from "~/firebase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserSession(request);
