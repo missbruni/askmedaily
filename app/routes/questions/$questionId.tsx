@@ -46,9 +46,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.questionId, "questionId not found");
 
   if (formData.get("_method") === "delete") {
-    await deleteQuestion(params.questionId);
+    await deleteQuestion(params.questionId, user.uid);
   } else if (user && formData.get("_method") === "save") {
-    await updateQuestion(params.questionId, newQuestion);
+    await updateQuestion(params.questionId, newQuestion, user.uid);
   }
 
   return redirect("/questions");

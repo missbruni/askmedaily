@@ -79,17 +79,25 @@ export async function createQuestion(question: string, userId: string) {
   });
 }
 
-export function updateQuestion(id: string, question: string) {
-  return db.collection(QUESTIONS).doc(id).set(
-    {
-      question,
-      modified: new Date(),
-    },
-    { merge: true }
-  );
+export async function updateQuestion(
+  id: string,
+  question: string,
+  userId: string
+) {
+  const documentRef = db.collection(QUESTIONS).doc(id);
+  const isAuthorized = (await documentRef.get()).data()?.userId === userId;
+
+  if (!isAuthorized) throw new Error("Not authorized");
+
+  return documentRef.set({ question, modified: new Date() }, { merge: true });
 }
 
-export async function deleteQuestion(id: string) {
+export async function deleteQuestion(id: string, userId: string) {
+  const documentRef = db.collection(QUESTIONS).doc(id);
+  const isAuthorized = (await documentRef.get()).data()?.userId === userId;
+
+  if (!isAuthorized) throw new Error("Not authorized");
+
   return db.collection(QUESTIONS).doc(id).delete();
 }
 
