@@ -81,8 +81,8 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-full flex-col justify-center bg-[aliceblue]">
       <div className="max-w-m mx-auto w-[400px] px-8">
-        <div className="relative inset-0 bg-white shadow-xl sm:overflow-hidden sm:rounded-2xl">
-          <div className="lg:pb-18 flex flex-col items-center justify-center gap-20 px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8 lg:pt-32">
+        <div className="relative inset-0 rounded-2xl bg-white shadow-xl sm:overflow-hidden">
+          <div className="lg:pb-18 flex flex-col items-center justify-center px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8">
             <Form method="post" className="w-full space-y-6">
               <div>
                 <label
