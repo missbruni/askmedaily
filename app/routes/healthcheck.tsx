@@ -3,20 +3,9 @@ import type { LoaderFunction } from "@remix-run/node";
 
 import { db } from "~/firebase.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const host =
-    request.headers.get("X-Forwarded-Host") ?? request.headers.get("host");
-
+export const loader: LoaderFunction = async () => {
   try {
-    const url = new URL("/", `http://${host}`);
-    // if we can connect to Firestore and make a simple query
-    // and make a HEAD request to ourselves, then we're good.
-    await Promise.all([
-      db.collection("questions").limit(1).get(),
-      fetch(url.toString(), { method: "HEAD" }).then((r) => {
-        if (!r.ok) return Promise.reject(r);
-      }),
-    ]);
+    await db.collection("questions").limit(1).get();
     return new Response("OK");
   } catch (error: unknown) {
     console.log("healthcheck ❌", { error });

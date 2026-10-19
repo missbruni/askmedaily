@@ -2,6 +2,49 @@ import { admin, db } from "~/firebase.server";
 import { MAX_QUESTION_IMPORT_ROWS } from "~/question-import.server";
 
 const QUESTIONS = "questions";
+const QUESTION_IDS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+type QuestionIdsCache = {
+  ids: string[];
+  expiresAt: number;
+};
+
+let questionIdsCache: QuestionIdsCache | undefined;
+let questionIdsCacheVersion = 0;
+let questionIdsLoad: Promise<string[]> | undefined;
+
+function invalidateQuestionIdsCache() {
+  questionIdsCache = undefined;
+  questionIdsLoad = undefined;
+  questionIdsCacheVersion += 1;
+}
+
+async function getQuestionIds() {
+  if (questionIdsCache && questionIdsCache.expiresAt > Date.now()) {
+    return questionIdsCache.ids;
+  }
+  if (questionIdsLoad) return questionIdsLoad;
+
+  const cacheVersion = questionIdsCacheVersion;
+  const load = db
+    .collection(QUESTIONS)
+    .listDocuments()
+    .then((documents) => documents.map((document) => document.id));
+  questionIdsLoad = load;
+
+  try {
+    const ids = await load;
+    if (cacheVersion === questionIdsCacheVersion) {
+      questionIdsCache = {
+        ids,
+        expiresAt: Date.now() + QUESTION_IDS_CACHE_TTL_MS,
+      };
+    }
+    return ids;
+  } finally {
+    if (questionIdsLoad === load) questionIdsLoad = undefined;
+  }
+}
 
 export type Question = {
   id: string;
@@ -31,14 +74,12 @@ export async function getQuestionsByUser(userId: string) {
 }
 
 export async function getRandomQuestions(ignoredIds?: string[]) {
-  const documentIds: string[] = [];
-  const documentsSnapshot = await db.collection(QUESTIONS).listDocuments();
-  documentsSnapshot.forEach((doc: any) => {
-    if (!ignoredIds || !ignoredIds?.includes(doc.id)) documentIds.push(doc.id);
-  });
+  const documentIds = await getQuestionIds();
+  const availableIds = documentIds.filter((id) => !ignoredIds?.includes(id));
 
-  const shuffled = documentIds.sort(() => 0.5 - Math.random());
+  const shuffled = availableIds.sort(() => 0.5 - Math.random());
   const randomDocumentIds = shuffled.slice(0, 5);
+  if (randomDocumentIds.length === 0) return [];
 
   const questionsSnapshot = await db
     .collection(QUESTIONS)
@@ -53,12 +94,14 @@ export async function getRandomQuestions(ignoredIds?: string[]) {
 }
 
 export async function createQuestion(question: string, userId: string) {
-  return db.collection(QUESTIONS).doc().set({
+  const result = await db.collection(QUESTIONS).doc().set({
     userId,
     question,
     created: new Date(),
     modified: new Date(),
   });
+  invalidateQuestionIdsCache();
+  return result;
 }
 
 export async function createQuestions(questions: string[], userId: string) {
@@ -79,7 +122,9 @@ export async function createQuestions(questions: string[], userId: string) {
     });
   });
 
-  return batch.commit();
+  const result = await batch.commit();
+  invalidateQuestionIdsCache();
+  return result;
 }
 
 export async function updateQuestion(
@@ -101,7 +146,9 @@ export async function deleteQuestion(id: string, userId: string) {
 
   if (!isAuthorized) throw new Error("Not authorized");
 
-  return db.collection(QUESTIONS).doc(id).delete();
+  const result = await documentRef.delete();
+  invalidateQuestionIdsCache();
+  return result;
 }
 
 export async function deleteQuestions(userId: string) {
@@ -117,5 +164,7 @@ export async function deleteQuestions(userId: string) {
     batch.delete(doc.ref);
   });
 
-  return batch.commit();
+  const result = await batch.commit();
+  invalidateQuestionIdsCache();
+  return result;
 }
