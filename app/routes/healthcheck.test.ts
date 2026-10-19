@@ -14,22 +14,13 @@ vi.mock("~/firebase.server", () => ({
   },
 }));
 
-const originalFetch = globalThis.fetch;
-
-beforeEach(() => {
-  globalThis.fetch = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(null, { status: 200 })
-    ) as unknown as typeof fetch;
-});
-
 afterEach(() => {
-  globalThis.fetch = originalFetch;
   vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 test("checks Firestore before reporting the app healthy", async () => {
+  const fetchSpy = vi.spyOn(globalThis, "fetch");
   const request = new Request("http://app.test/healthcheck", {
     headers: { host: "app.test" },
   });
@@ -43,7 +34,5 @@ test("checks Firestore before reporting the app healthy", async () => {
   expect(response.status).toBe(200);
   expect(await response.text()).toBe("OK");
   expect(db.collection).toHaveBeenCalledWith("questions");
-  expect(globalThis.fetch).toHaveBeenCalledWith("http://app.test/", {
-    method: "HEAD",
-  });
+  expect(fetchSpy).not.toHaveBeenCalled();
 });
