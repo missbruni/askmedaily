@@ -15,15 +15,15 @@ jobs:
         uses: styfle/cancel-workflow-action@0.9.1
 
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
-          node-version: 18
+          node-version: 24
 
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+      - name: 📥 Install dependencies
+        run: npm ci
 
       - name: 🔬 Lint
         run: npm run lint
@@ -36,17 +36,15 @@ jobs:
         uses: styfle/cancel-workflow-action@0.11.0
 
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
-          node-version: 16
+          node-version: 24
 
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
+      - name: 📥 Install dependencies
+        run: npm ci
 
       - name: 🔎 Generate Prisma Types
         run: npx prisma generate
@@ -64,17 +62,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           cache: npm
-          cache-dependency-path: ./package.json
-          node-version: 18
+          cache-dependency-path: ./package-lock.json
+          node-version: 24
 
-      - name: 📥 Install deps
-        run: npm install
+      - name: 📥 Install dependencies
+        run: npm ci
 
       - name: ⚡ Run vitest
         run: npm run test -- --coverage
@@ -88,15 +86,14 @@ jobs:
 
   build:
     name: 🐳 Build
-    # only build/deploy master branch on pushes
-    if: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') && github.event_name == 'push' }}
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' }}
     runs-on: ubuntu-latest
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
 
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: 👀 Read app name
         uses: SebRollen/toml-action@v1.0.0
@@ -118,6 +115,7 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: 🔑 Fly Registry Auth
+        if: ${{ github.event_name == 'push' }}
         uses: docker/login-action@v1
         with:
           registry: registry.fly.io
@@ -128,8 +126,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
-          tags: registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}
+          push: ${{ github.event_name == 'push' }}
+          tags: registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || github.ref_name }}-${{ github.sha }}
           build-args: |
             COMMIT_SHA=${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -158,7 +156,7 @@ jobs:
         uses: styfle/cancel-workflow-action@0.9.1
 
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: 👀 Read app name
         uses: SebRollen/toml-action@v1.0.0
