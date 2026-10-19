@@ -44,6 +44,10 @@ export default function QuestionsPage() {
             + New Question
           </Link>
 
+          <Link to="import" className="block px-4 pb-4 text-lg text-blue-500">
+            Import Questions
+          </Link>
+
           <hr />
 
           {data.questionListItems.length === 0 ? (
