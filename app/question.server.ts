@@ -1,4 +1,5 @@
 import { admin, db } from "~/firebase.server";
+import { MAX_QUESTION_IMPORT_ROWS } from "~/question-import.server";
 
 const QUESTIONS = "questions";
 
@@ -58,6 +59,27 @@ export async function createQuestion(question: string, userId: string) {
     created: new Date(),
     modified: new Date(),
   });
+}
+
+export async function createQuestions(questions: string[], userId: string) {
+  if (questions.length === 0 || questions.length > MAX_QUESTION_IMPORT_ROWS) {
+    throw new Error(
+      `A batch must contain between 1 and ${MAX_QUESTION_IMPORT_ROWS} questions.`
+    );
+  }
+
+  const batch = db.batch();
+  const now = new Date();
+  questions.forEach((question) => {
+    batch.set(db.collection(QUESTIONS).doc(), {
+      userId,
+      question,
+      created: now,
+      modified: now,
+    });
+  });
+
+  return batch.commit();
 }
 
 export async function updateQuestion(
