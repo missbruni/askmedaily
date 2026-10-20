@@ -3,8 +3,10 @@ import { json, redirect } from "@remix-run/node";
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
+import { UilTrashAlt } from "@iconscout/react-unicons";
 import invariant from "tiny-invariant";
 
+import { confirmBeforeSubmit } from "~/utils";
 import { updateQuestion } from "~/question.server";
 import { deleteQuestion } from "~/question.server";
 import { getQuestion } from "~/question.server";
@@ -77,50 +79,49 @@ export default function QuestionDetailsPage() {
 
   return (
     <div>
-      <Form
-        method="post"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-          width: "100%",
-        }}
-      >
-        <div>
-          <label className="flex w-full flex-col gap-1">
-            <span>Question: </span>
-            <input
-              defaultValue={data.question.question}
-              ref={questionRef}
-              name="question"
-              className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-              aria-invalid={actionData?.errors?.question ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.question ? "question-error" : undefined
-              }
-            />
+      <p className="eyebrow">Edit your card</p>
+      <h2 className="deck-manager__detail-title">Question Details</h2>
+      <Form method="post" className="question-form">
+        <div className="field">
+          <label htmlFor="question" className="field-label">
+            Question
           </label>
+          <input
+            id="question"
+            defaultValue={data.question.question}
+            ref={questionRef}
+            name="question"
+            className="text-field"
+            aria-invalid={actionData?.errors?.question ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.question ? "question-error" : undefined
+            }
+          />
           {actionData?.errors?.question && (
-            <div className="pt-1 text-red-700" id="question-error">
+            <p className="field-error" id="question-error">
               {actionData.errors.question}
-            </div>
+            </p>
           )}
         </div>
-        <div className="flex items-center justify-end gap-1">
+        <div className="question-form__actions">
           <button
             name="_method"
             value="save"
             type="submit"
-            className="rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+            className="button button--primary"
           >
-            Update
+            Save Changes
           </button>
           <button
             name="_method"
             value="delete"
             type="submit"
-            className="rounded bg-red-500  py-2 px-4 text-white hover:bg-red-600 focus:bg-red-400"
+            className="button button--danger"
+            onClick={confirmBeforeSubmit(
+              "Delete this question from your deck?"
+            )}
           >
+            <UilTrashAlt size="16" aria-hidden="true" />
             Delete
           </button>
         </div>

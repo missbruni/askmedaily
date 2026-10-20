@@ -129,44 +129,43 @@ export default function ImportQuestionsPage() {
   const actionData = useActionData<ActionData>();
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">Import questions</h1>
-      <p className="mt-2">
-        Upload a CSV with a single <code>question</code> column and one question
-        per row. You can import up to 500 questions at a time.
-      </p>
+    <div className="question-import">
+      <div>
+        <p className="eyebrow">Add a stack at once</p>
+        <h2 className="deck-manager__detail-title">Import questions</h2>
+        <p className="question-import__intro">
+          Upload a CSV with a single <code>question</code> column and one
+          question per row. You can import up to 500 questions at a time.
+        </p>
+      </div>
 
       <Form
         method="post"
         encType="multipart/form-data"
-        className="mt-6 flex flex-col gap-4"
+        className="question-form"
       >
         <input type="hidden" name="intent" value="preview" />
-        <label className="flex flex-col gap-2">
-          <span>CSV file (512 KB maximum)</span>
+        <label className="field">
+          <span className="field-label">
+            CSV file <span className="question-import__limit">512 KB max</span>
+          </span>
           <input
             name="file"
             type="file"
             accept=".csv,text/csv"
             required
-            className="rounded-md border border-gray-400 p-2"
+            className="text-field question-import__file"
           />
         </label>
-        <div>
-          <button
-            type="submit"
-            className="rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
+        <div className="question-form__actions">
+          <button type="submit" className="button button--primary">
             Preview CSV
           </button>
         </div>
       </Form>
 
       {actionData?.errors && (
-        <div
-          className="mt-4 rounded-md bg-red-100 p-3 text-red-800"
-          role="alert"
-        >
+        <div className="form-message form-message--error" role="alert">
           {actionData.errors.map((error, index) => (
             <p key={`${error.row ?? "file"}-${index}`}>
               {error.row ? `Row ${error.row}: ` : ""}
@@ -177,35 +176,32 @@ export default function ImportQuestionsPage() {
       )}
 
       {actionData?.preview && (
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold">
+        <section className="question-import__preview">
+          <h3 className="question-import__preview-title">
             Preview ({actionData.preview.questions.length} questions)
-          </h2>
+          </h3>
           {actionData.preview.questions.length > 0 ? (
-            <ol className="mt-3 max-h-96 list-inside list-decimal overflow-y-auto rounded border p-3">
+            <ol className="question-import__preview-list">
               {actionData.preview.questions.map((question, index) => (
-                <li key={`${index}-${question}`} className="py-1">
-                  {question}
-                </li>
+                <li key={`${index}-${question}`}>{question}</li>
               ))}
             </ol>
           ) : (
-            <p className="mt-2">No valid questions to import.</p>
+            <p className="question-import__intro">
+              No valid questions to import.
+            </p>
           )}
 
           {(!actionData.errors || actionData.errors.length === 0) &&
             actionData.preview.questions.length > 0 && (
-              <Form method="post" className="mt-4">
+              <Form method="post" className="question-import__confirm">
                 <input type="hidden" name="intent" value="import" />
                 <input
                   type="hidden"
                   name="csvContent"
                   value={actionData.preview.csvContent}
                 />
-                <button
-                  type="submit"
-                  className="rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-                >
+                <button type="submit" className="button button--primary">
                   Import {actionData.preview.questions.length} questions
                 </button>
               </Form>
@@ -214,9 +210,9 @@ export default function ImportQuestionsPage() {
       )}
 
       {typeof actionData?.importedCount === "number" && (
-        <p className="mt-4 text-green-700" role="status">
+        <p className="form-message form-message--success" role="status">
           Imported {actionData.importedCount} questions.{" "}
-          <Link to="/questions" className="underline">
+          <Link to="/questions" className="text-link">
             View your questions
           </Link>
         </p>

@@ -13,6 +13,7 @@ import {
 } from "@remix-run/react";
 
 import * as React from "react";
+import Brand from "~/components/Brand";
 import { confirmPassword, verifyPasswordCode } from "~/firebase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -94,96 +95,80 @@ export default function ResetPasswordPage() {
   }, [loaderData]);
 
   return (
-    <div className="flex min-h-full flex-col justify-center bg-[aliceblue]">
-      <div className="max-w-m mx-auto w-[400px] px-8">
-        <div className="relative inset-0 bg-white shadow-xl sm:overflow-hidden sm:rounded-2xl">
-          <div className="lg:pb-18 flex flex-col items-center justify-center gap-6 px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8 lg:pt-32">
-            <div className="flex flex-col items-center justify-center gap-6 align-middle">
-              <p className="text-gray-500">
-                {/* TODO: handle this more gracefully */}
-                {`Enter your new password for account ${
-                  loaderData.data!.email
-                }`}
-              </p>
-            </div>
-            <Form method="post" className="w-full space-y-6">
-              <div>
-                <label
-                  htmlFor="password"
-                  className="text-md block font-medium text-gray-700"
-                >
-                  Password
-                </label>
-                <div className="mt-1">
-                  <input
-                    ref={passwordRef}
-                    id="password"
-                    required
-                    autoFocus={true}
-                    name="password"
-                    type="password"
-                    autoComplete="password"
-                    aria-invalid={
-                      actionData?.errors?.password ? true : undefined
-                    }
-                    aria-describedby="password-error"
-                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                  />
-                </div>
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="text-md block font-medium text-gray-700"
-                >
-                  Confirm Password
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="confirm-password"
-                    required
-                    autoFocus={true}
-                    name="confirm-password"
-                    type="password"
-                    autoComplete="confirm-password"
-                    aria-invalid={
-                      actionData?.errors?.password ? true : undefined
-                    }
-                    aria-describedby="password-error"
-                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                  />
-                </div>
-              </div>
-              {Boolean(actionData?.data) && (
-                <div className="rounded-md bg-gray-100 px-3 py-3 text-sm text-gray-500">
-                  {actionData.data}
-                </div>
-              )}
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center rounded-md bg-[#1dbab4] px-4 py-2 font-medium text-white hover:bg-[#138784]"
-              >
-                Submit
-              </button>
-
-              <div className="flex flex-col items-center">
-                <div className="text-center text-sm text-gray-500">
-                  Don't have an account?{" "}
-                  <Link
-                    className="text-blue-500 underline"
-                    to={{
-                      pathname: "/join",
-                      search: searchParams.toString(),
-                    }}
-                  >
-                    Sign up
-                  </Link>
-                </div>
-              </div>
-            </Form>
+    <main className="app-shell auth-shell">
+      <section className="auth-panel">
+        <Brand />
+        <h1 className="auth-panel__title">Choose a new password</h1>
+        <p className="auth-panel__description">
+          {/* TODO: handle this more gracefully */}
+          {`Set a new password for ${loaderData.data!.email}`}
+        </p>
+        <Form method="post" className="auth-form">
+          <div className="field">
+            <label htmlFor="password" className="field-label">
+              Password
+            </label>
+            <input
+              ref={passwordRef}
+              id="password"
+              required
+              autoFocus={true}
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              aria-invalid={actionData?.errors?.password ? true : undefined}
+              aria-describedby="password-error"
+              className="text-field"
+            />
           </div>
-        </div>
-      </div>
-    </div>
+          <div className="field">
+            <label htmlFor="confirm-password" className="field-label">
+              Confirm password
+            </label>
+            <input
+              id="confirm-password"
+              required
+              name="confirm-password"
+              type="password"
+              autoComplete="new-password"
+              aria-invalid={actionData?.errors?.password ? true : undefined}
+              aria-describedby="password-error"
+              className="text-field"
+            />
+            {actionData?.errors?.password && (
+              <p
+                className="form-message form-message--error"
+                id="password-error"
+              >
+                {actionData.errors.password}
+              </p>
+            )}
+          </div>
+          {Boolean(actionData?.data) && (
+            <p className="form-message form-message--success">
+              {actionData.data}
+            </p>
+          )}
+          <button
+            type="submit"
+            className="button button--primary button--block"
+          >
+            Save password
+          </button>
+          <div className="auth-panel__links">
+            <span>Need an account? </span>
+            <Link
+              className="text-link"
+              to={{
+                pathname: "/join",
+                search: searchParams.toString(),
+              }}
+            >
+              Sign up
+            </Link>
+          </div>
+        </Form>
+      </section>
+    </main>
   );
 }

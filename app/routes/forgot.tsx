@@ -8,6 +8,7 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { UilInfoCircle } from "@iconscout/react-unicons";
 
+import Brand from "~/components/Brand";
 import { validateEmail } from "~/utils";
 import { getUserSession } from "~/session.server";
 import { sendResetEmail } from "~/firebase.server";
@@ -61,71 +62,63 @@ export default function ForgotPage() {
   }, [actionData]);
 
   return (
-    <div className="flex min-h-full flex-col justify-center bg-[aliceblue]">
-      <div className="max-w-m mx-auto w-[400px] px-8">
-        <div className="relative inset-0 bg-white shadow-xl sm:overflow-hidden sm:rounded-2xl">
-          <div className="lg:pb-18 flex flex-col items-center justify-center gap-6 px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8 lg:pt-32">
-            <div className="flex flex-col items-center justify-center gap-6 align-middle">
-              <UilInfoCircle className="h-16 w-16 fill-[#1dbab4]" />
-              <p className="text-gray-500">
-                Enter your email and we will send you a link to reset your
-                password.
+    <main className="app-shell auth-shell">
+      <section className="auth-panel">
+        <Brand />
+        <UilInfoCircle className="auth-panel__icon" aria-hidden="true" />
+        <h1 className="auth-panel__title">Reset your password</h1>
+        <p className="auth-panel__description">
+          Enter your email and we will send a link to reset your password.
+        </p>
+        <Form method="post" className="auth-form">
+          <div className="field">
+            <label htmlFor="email" className="field-label">
+              Email
+            </label>
+            <input
+              ref={emailRef}
+              id="email"
+              required
+              autoFocus={true}
+              name="email"
+              type="email"
+              autoComplete="email"
+              aria-invalid={actionData?.errors?.email ? true : undefined}
+              aria-describedby="email-error"
+              className="text-field"
+            />
+            {actionData?.errors?.email && (
+              <p className="form-message form-message--error" id="email-error">
+                {actionData.errors.email}
               </p>
-            </div>
-            <Form method="post" className="w-full space-y-6">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="text-md block font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <div className="mt-1">
-                  <input
-                    ref={emailRef}
-                    id="email"
-                    required
-                    autoFocus={true}
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    aria-invalid={actionData?.errors?.email ? true : undefined}
-                    aria-describedby="email-error"
-                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                  />
-                </div>
-              </div>
-              {Boolean(actionData?.data) && (
-                <div className="rounded-md bg-gray-100 px-3 py-3 text-sm text-gray-500">
-                  {actionData.data}
-                </div>
-              )}
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center rounded-md bg-[#1dbab4] px-4 py-2 font-medium text-white hover:bg-[#138784]"
-              >
-                {/* TODO: add loading state, submitting */}
-                Submit
-              </button>
-
-              <div className="flex flex-col items-center">
-                <div className="text-center text-sm text-gray-500">
-                  Don't have an account?{" "}
-                  <Link
-                    className="text-blue-500 underline"
-                    to={{
-                      pathname: "/join",
-                      search: searchParams.toString(),
-                    }}
-                  >
-                    Sign up
-                  </Link>
-                </div>
-              </div>
-            </Form>
+            )}
           </div>
-        </div>
-      </div>
-    </div>
+          {Boolean(actionData?.data) && (
+            <p className="form-message form-message--success">
+              {actionData.data}
+            </p>
+          )}
+          <button
+            type="submit"
+            className="button button--primary button--block"
+          >
+            {/* TODO: add loading state, submitting */}
+            Send reset link
+          </button>
+          <div className="auth-panel__links">
+            <span>Need an account? </span>
+            <Link
+              className="text-link"
+              to={{
+                pathname: "/join",
+                search: searchParams.toString(),
+              }}
+            >
+              Sign up
+            </Link>
+          </div>
+        </Form>
+      </section>
+    </main>
   );
 }

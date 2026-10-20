@@ -1,5 +1,6 @@
 import React from "react";
 import { Form } from "@remix-run/react";
+import { UilSignOutAlt } from "@iconscout/react-unicons";
 
 type LogoutButtonProps = {};
 const LogoutButton: React.FC<LogoutButtonProps> = (props) => {
@@ -7,9 +8,11 @@ const LogoutButton: React.FC<LogoutButtonProps> = (props) => {
     <Form action="/logout" method="post">
       <button
         type="submit"
-        className="flex items-center justify-center rounded-md bg-[#1dbab4] px-4 py-2 font-medium text-white hover:bg-[#138784]"
+        className="header-button header-button--collapse-md"
+        aria-label="Log out"
       >
-        Logout
+        <UilSignOutAlt size="16" aria-hidden="true" />
+        <span className="header-button__label">Log out</span>
       </button>
     </Form>
   );

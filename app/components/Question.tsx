@@ -1,22 +1,40 @@
 import React from "react";
 import type { Question as QuestionModel } from "@prisma/client";
 
+import { formatCardNumber } from "~/utils";
+
 type QuestionProps = {
   question: QuestionModel;
+  cardNumber: number;
 };
 
-const Question: React.FC<QuestionProps> = ({ question }) => {
+const Question: React.FC<QuestionProps> = ({ question, cardNumber }) => {
+  const text = question.question || "No question found.";
+  const sizeModifier =
+    text.length > 180
+      ? " question-card__question--long"
+      : text.length > 110
+      ? " question-card__question--medium"
+      : "";
+
   return (
-    <div className="lg:pb-18 flex h-full w-full flex-col items-center justify-center gap-20 px-4 pt-16 pb-8 sm:px-6 sm:pb-14 lg:px-8">
-      <h6 className="text-center text-2xl font-extrabold tracking-tight">
-        <span className="block text-[#1dbab4] drop-shadow-md">Question</span>
-      </h6>
-      <h3 className="text-center text-2xl  font-extrabold tracking-tight xl:text-3xl">
-        <span className="block text-white drop-shadow-md">
-          {question.question || "No question found."}
+    <article className="question-card">
+      <header className="question-card__top">
+        <span className="question-card__badge">Daily card</span>
+        <span className="question-card__number">
+          {formatCardNumber(cardNumber)}
         </span>
-      </h3>
-    </div>
+      </header>
+
+      <div className="question-card__body">
+        <h2 className={`question-card__question${sizeModifier}`}>{text}</h2>
+        <p className="question-card__prompt">
+          There's no right or wrong answer.
+        </p>
+      </div>
+
+      <footer className="question-card__footer">Tabletop trivia deck</footer>
+    </article>
   );
 };
 export default Question;

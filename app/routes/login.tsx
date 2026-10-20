@@ -2,6 +2,7 @@ import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
+import Brand from "~/components/Brand";
 import { signIn } from "~/firebase.server";
 import { createUserSession } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
@@ -79,124 +80,104 @@ export default function LoginPage() {
   }, [actionData]);
 
   return (
-    <div className="flex min-h-full flex-col justify-center bg-[aliceblue]">
-      <div className="max-w-m mx-auto w-[400px] px-8">
-        <div className="relative inset-0 rounded-2xl bg-white shadow-xl sm:overflow-hidden">
-          <div className="lg:pb-18 flex flex-col items-center justify-center px-4 pt-8 pb-8 sm:px-6 sm:pb-12 lg:px-8">
-            <Form method="post" className="w-full space-y-6">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="text-md block font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <div className="mt-1">
-                  <input
-                    ref={emailRef}
-                    id="email"
-                    required
-                    autoFocus={true}
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    aria-invalid={actionData?.errors?.email ? true : undefined}
-                    aria-describedby="email-error"
-                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                  />
-                </div>
-                {actionData?.errors?.email && (
-                  <div
-                    className="mt-2 rounded-md bg-red-100 px-3 py-3 text-sm text-red-500"
-                    id="reset-password-error"
-                  >
-                    {actionData.errors.email}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="text-md block font-medium text-gray-700"
-                >
-                  Password
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="password"
-                    ref={passwordRef}
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    aria-invalid={
-                      actionData?.errors?.password ? true : undefined
-                    }
-                    aria-describedby="password-error"
-                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                  />
-                </div>
-                {actionData?.errors?.password && (
-                  <div
-                    className="mt-2 rounded-md bg-red-100 px-3 py-3 text-sm text-red-500"
-                    id="reset-password-error"
-                  >
-                    {actionData.errors.password}
-                  </div>
-                )}
-              </div>
-
-              <input type="hidden" name="redirectTo" value={redirectTo} />
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center rounded-md bg-[#1dbab4] px-4 py-2 font-medium text-white hover:bg-[#138784]"
-              >
-                Log in
-              </button>
-              <div className="flex flex-col items-center gap-4">
-                {resetPassword === "failed" && (
-                  <div
-                    className="rounded-md bg-red-100 px-3 py-3 text-sm text-red-500"
-                    id="reset-password-error"
-                  >
-                    Password update could not be processed at this time. Please
-                    try again later.
-                  </div>
-                )}
-                {resetPassword === "success" && (
-                  <div className="rounded-md bg-green-100 px-3 py-3 text-sm text-gray-500">
-                    Password has been updated, you can now login with your new
-                    credentials.
-                  </div>
-                )}
-                <div className="text-center text-sm text-gray-500">
-                  <Link
-                    className="text-blue-500 underline"
-                    to={{
-                      pathname: "/forgot",
-                      search: searchParams.toString(),
-                    }}
-                  >
-                    Forgot password
-                  </Link>
-                </div>
-                <div className="text-center text-sm text-gray-500">
-                  Don't have an account?{" "}
-                  <Link
-                    className="text-blue-500 underline"
-                    to={{
-                      pathname: "/join",
-                      search: searchParams.toString(),
-                    }}
-                  >
-                    Sign up
-                  </Link>
-                </div>
-              </div>
-            </Form>
+    <main className="app-shell auth-shell">
+      <section className="auth-panel">
+        <Brand />
+        <h1 className="auth-panel__title">Welcome back</h1>
+        <Form method="post" className="auth-form">
+          <div className="field">
+            <label htmlFor="email" className="field-label">
+              Email
+            </label>
+            <input
+              ref={emailRef}
+              id="email"
+              required
+              autoFocus={true}
+              name="email"
+              type="email"
+              autoComplete="email"
+              aria-invalid={actionData?.errors?.email ? true : undefined}
+              aria-describedby="email-error"
+              className="text-field"
+            />
+            {actionData?.errors?.email && (
+              <p className="form-message form-message--error" id="email-error">
+                {actionData.errors.email}
+              </p>
+            )}
           </div>
-        </div>
-      </div>
-    </div>
+
+          <div className="field">
+            <label htmlFor="password" className="field-label">
+              Password
+            </label>
+            <input
+              id="password"
+              ref={passwordRef}
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              aria-invalid={actionData?.errors?.password ? true : undefined}
+              aria-describedby="password-error"
+              className="text-field"
+            />
+            {actionData?.errors?.password && (
+              <p
+                className="form-message form-message--error"
+                id="password-error"
+              >
+                {actionData.errors.password}
+              </p>
+            )}
+          </div>
+
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <button
+            type="submit"
+            className="button button--primary button--block"
+          >
+            Log in
+          </button>
+          <div className="auth-panel__links">
+            {resetPassword === "failed" && (
+              <p className="form-message form-message--error">
+                Password update could not be processed at this time. Please try
+                again later.
+              </p>
+            )}
+            {resetPassword === "success" && (
+              <p className="form-message form-message--success">
+                Password has been updated, you can now login with your new
+                credentials.
+              </p>
+            )}
+            <div>
+              <Link
+                className="text-link"
+                to={{
+                  pathname: "/forgot",
+                  search: searchParams.toString(),
+                }}
+              >
+                Forgot password
+              </Link>
+            </div>
+            <div>
+              Don't have an account?{" "}
+              <Link
+                className="text-link"
+                to={{
+                  pathname: "/join",
+                  search: searchParams.toString(),
+                }}
+              >
+                Sign up
+              </Link>
+            </div>
+          </div>
+        </Form>
+      </section>
+    </main>
   );
 }
