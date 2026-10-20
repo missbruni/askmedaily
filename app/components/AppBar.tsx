@@ -1,50 +1,73 @@
 import React from "react";
 
-import { Link } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 import LogoutButton from "./Logout";
-import { useMedia } from "react-use";
 
 type AppBarProps = {
   email?: string;
+  currentCard?: number;
+  totalCards?: number;
 };
-const AppBar: React.FC<AppBarProps> = ({ email }) => {
-  const isDownSm = useMedia("(max-width: 480px)");
+const AppBar: React.FC<AppBarProps> = ({
+  email,
+  currentCard = 1,
+  totalCards,
+}) => {
+  const location = useLocation();
+  const isQuestionManager = location.pathname.startsWith("/questions");
 
   return (
-    <header className="flex items-center justify-between bg-[#252525] p-3 text-white">
-      <h1 className="text-3xl font-bold text-[#1dbab4]">
-        <Link to="/.">{isDownSm ? "AMD" : "AskMeDaily"}</Link>
-      </h1>
-      <div className="flex items-center gap-2">
-        {email ? (
-          <>
-            <Link
-              to="/questions"
-              className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-[#1dbab4] shadow-sm hover:bg-[#e4f9f8]"
-            >
-              Questions
-            </Link>
-            <LogoutButton />
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 align-middle text-white">
-              <p className="text-2xl uppercase">{email[0]}</p>
-            </div>
-          </>
-        ) : (
-          <>
-            <Link
-              to="/login"
-              className="flex items-center justify-center rounded-md bg-[#1dbab4] px-4 py-2 font-medium text-white hover:bg-[#138784]"
-            >
-              Log In
-            </Link>
-            <Link
-              to="/join"
-              className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-[#1dbab4] shadow-sm hover:bg-[#e4f9f8] "
-            >
-              Sign up
-            </Link>
-          </>
+    <header className="app-header">
+      <div className="app-header__inner">
+        <Link to="/" className="app-brand" aria-label="AskMeDaily home">
+          <span className="app-brand__mark" aria-hidden="true" />
+          <span className="app-brand__name">AskMeDaily</span>
+          <span className="app-brand__edition">Tabletop Edition</span>
+        </Link>
+
+        {totalCards !== undefined && totalCards > 0 && (
+          <div
+            className="deck-counter"
+            aria-label={`Card ${currentCard} of ${totalCards}`}
+          >
+            <span className="deck-counter__current">
+              {String(currentCard).padStart(2, "0")}
+            </span>
+            <span>of</span>
+            <span className="deck-counter__total">
+              {String(totalCards).padStart(2, "0")}
+            </span>
+          </div>
         )}
+
+        <nav className="app-header__actions" aria-label="Main navigation">
+          {email ? (
+            <>
+              <Link
+                to={isQuestionManager ? "/" : "/questions"}
+                className="app-header__link"
+              >
+                {isQuestionManager ? "Play cards" : "Questions"}
+              </Link>
+              <LogoutButton />
+              <span className="app-avatar" title={email}>
+                {email[0]?.toUpperCase() ?? "?"}
+              </span>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="app-header__link">
+                Log In
+              </Link>
+              <Link
+                to="/join"
+                className="app-header__link app-header__link--primary"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
+        </nav>
       </div>
     </header>
   );

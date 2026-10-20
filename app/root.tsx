@@ -9,9 +9,13 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
+import tabletopStylesheetUrl from "./theme.css";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
+  return [
+    { rel: "stylesheet", href: tailwindStylesheetUrl },
+    { rel: "stylesheet", href: tabletopStylesheetUrl },
+  ];
 };
 
 export const meta: MetaFunction = () => ({
@@ -41,11 +45,11 @@ export default function App() {
           crossOrigin=""
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="h-full w-full overflow-hidden">
+      <body className="min-h-full w-full">
         <Outlet />
         <ScrollRestoration />
         <Scripts />

@@ -1,6 +1,7 @@
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { useState } from "react";
 
 import { deleteQuestions, getQuestionsByUser } from "~/question.server";
 import { getUserSession } from "~/session.server";
@@ -33,57 +34,98 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function QuestionsPage() {
   const data = useLoaderData() as LoaderData;
+  const [search, setSearch] = useState("");
+  const filteredQuestions = data.questionListItems.filter((question) =>
+    question.question.toLowerCase().includes(search.trim().toLowerCase())
+  );
 
   return (
-    <div className="flex h-full min-h-screen flex-col">
+    <div className="app-shell">
       <AppBar email={data.user} />
 
-      <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r bg-gray-50">
-          <Link to="new" className="block p-4 text-xl text-blue-500">
-            + New Question
-          </Link>
+      <main className="deck-manager">
+        <header className="deck-manager__header">
+          <div>
+            <p className="deck-manager__eyebrow">Your collection</p>
+            <h1 className="deck-manager__title">Question Deck</h1>
+            <p className="deck-manager__summary">
+              {data.questionListItems.length}{" "}
+              {data.questionListItems.length === 1 ? "card" : "cards"} in your
+              deck
+            </p>
+          </div>
+          <div className="deck-manager__actions">
+            <Link to="new" className="button button--primary">
+              + New Question
+            </Link>
+            <Link to="import" className="button">
+              Import CSV
+            </Link>
+          </div>
+        </header>
 
-          <Link to="import" className="block px-4 pb-4 text-lg text-blue-500">
-            Import Questions
-          </Link>
+        <div className="deck-manager__grid">
+          <aside className="deck-manager__panel deck-manager__list-panel">
+            <div className="deck-manager__list-controls">
+              <span className="deck-manager__all-pill">
+                All questions / {data.questionListItems.length}
+              </span>
+              <label>
+                <span className="sr-only">Search your questions</span>
+                <input
+                  className="deck-manager__search"
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.currentTarget.value)}
+                  placeholder="Find in your deck"
+                />
+              </label>
+            </div>
 
-          <hr />
-
-          {data.questionListItems.length === 0 ? (
-            <p className="p-4">No Questions yet</p>
-          ) : (
-            <>
-              <ol className="h-[calc(100%-188px)] overflow-scroll">
-                {data.questionListItems.map((question: any) => (
+            {filteredQuestions.length > 0 ? (
+              <ol className="deck-manager__question-list">
+                {filteredQuestions.map((question, index) => (
                   <li key={question.id}>
                     <NavLink
                       to={question.id}
                       className={({ isActive }) =>
-                        `block border-b p-4 text-xl ${
-                          isActive ? "bg-white" : ""
-                        }`
+                        `deck-question-link${isActive ? " is-active" : ""}`
                       }
                     >
-                      {question.question}
+                      <span className="deck-question-link__number">
+                        #{String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="deck-question-link__text">
+                        {question.question}
+                      </span>
+                      <span className="deck-question-link__edit">Edit</span>
                     </NavLink>
                   </li>
                 ))}
               </ol>
-              <Form method="post" className="absolute bottom-0 p-3">
-                <button
-                  type="submit"
-                  className="rounded bg-red-500  py-2 px-4 text-white hover:bg-red-600 focus:bg-red-400"
-                >
-                  Delete All
-                </button>
-              </Form>
-            </>
-          )}
-        </div>
+            ) : (
+              <p className="deck-manager__empty">
+                {search
+                  ? "No questions match your search."
+                  : "Your deck is empty."}
+              </p>
+            )}
 
-        <div className="flex-1 p-6">
-          <Outlet />
+            {data.questionListItems.length > 0 && (
+              <footer className="deck-manager__list-footer">
+                <span>{data.questionListItems.length} TOTAL CARDS</span>
+                <Form method="post">
+                  <button type="submit" className="button button--danger">
+                    Clear deck
+                  </button>
+                </Form>
+              </footer>
+            )}
+          </aside>
+
+          <section className="deck-manager__panel deck-manager__editor">
+            <Outlet />
+          </section>
         </div>
       </main>
     </div>

@@ -57,42 +57,36 @@ export default function NewQuestionPage() {
   }, [actionData]);
 
   return (
-    <Form
-      method="post"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        width: "100%",
-      }}
-    >
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Question: </span>
+    <div>
+      <p className="deck-manager__eyebrow">Add to the collection</p>
+      <h2 className="deck-manager__editor-title">New Question</h2>
+      <Form method="post" className="question-form">
+        <div className="question-form__field">
+          <label htmlFor="question" className="question-form__label">
+            Question
+          </label>
           <input
+            id="question"
             ref={questionRef}
             name="question"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            className="text-field"
             aria-invalid={actionData?.errors?.question ? true : undefined}
             aria-errormessage={
               actionData?.errors?.question ? "question-error" : undefined
             }
           />
-        </label>
-        {actionData?.errors?.question && (
-          <div className="pt-1 text-red-700" id="question-error">
-            {actionData.errors.question}
-          </div>
-        )}
-      </div>
-      <div className="text-right">
-        <button
-          type="submit"
-          className="rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-        >
-          Save
-        </button>
-      </div>
-    </Form>
+          {actionData?.errors?.question && (
+            <p className="form-error" id="question-error">
+              {actionData.errors.question}
+            </p>
+          )}
+        </div>
+        <div className="question-form__actions">
+          <button type="submit" className="button button--primary">
+            Save Question
+          </button>
+        </div>
+      </Form>
+    </div>
   );
 }

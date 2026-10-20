@@ -32,7 +32,7 @@ const RevealButton: React.FC<RevealButtonProps> = ({
       {...bind()}
     >
       <animated.button
-        className="absolute flex cursor-pointer items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-[#1dbab4] shadow-sm hover:bg-[#e4f9f8]"
+        className="reveal-button__front"
         style={{
           opacity: opacity.to((o) => 1 - o),
           transform,
@@ -42,7 +42,7 @@ const RevealButton: React.FC<RevealButtonProps> = ({
         {label}
       </animated.button>
       <animated.div
-        className="font-large absolute flex items-center justify-center px-4 py-2 text-base text-white shadow-sm"
+        className="reveal-button__back"
         style={{
           opacity,
           transform,
