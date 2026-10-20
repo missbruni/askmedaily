@@ -3,8 +3,10 @@ import { json, redirect } from "@remix-run/node";
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
+import { UilTrashAlt } from "@iconscout/react-unicons";
 import invariant from "tiny-invariant";
 
+import { confirmBeforeSubmit } from "~/utils";
 import { updateQuestion } from "~/question.server";
 import { deleteQuestion } from "~/question.server";
 import { getQuestion } from "~/question.server";
@@ -77,11 +79,11 @@ export default function QuestionDetailsPage() {
 
   return (
     <div>
-      <p className="deck-manager__eyebrow">Edit your card</p>
-      <h2 className="deck-manager__editor-title">Question Details</h2>
+      <p className="eyebrow">Edit your card</p>
+      <h2 className="deck-manager__detail-title">Question Details</h2>
       <Form method="post" className="question-form">
-        <div className="question-form__field">
-          <label htmlFor="question" className="question-form__label">
+        <div className="field">
+          <label htmlFor="question" className="field-label">
             Question
           </label>
           <input
@@ -96,7 +98,7 @@ export default function QuestionDetailsPage() {
             }
           />
           {actionData?.errors?.question && (
-            <p className="form-error" id="question-error">
+            <p className="field-error" id="question-error">
               {actionData.errors.question}
             </p>
           )}
@@ -115,7 +117,11 @@ export default function QuestionDetailsPage() {
             value="delete"
             type="submit"
             className="button button--danger"
+            onClick={confirmBeforeSubmit(
+              "Delete this question from your deck?"
+            )}
           >
+            <UilTrashAlt size="16" aria-hidden="true" />
             Delete
           </button>
         </div>

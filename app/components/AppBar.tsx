@@ -1,6 +1,8 @@
 import React from "react";
 
 import { Link, useLocation } from "@remix-run/react";
+import { UilListUl, UilPlay } from "@iconscout/react-unicons";
+import Brand from "./Brand";
 import LogoutButton from "./Logout";
 
 type AppBarProps = {
@@ -11,7 +13,7 @@ type AppBarProps = {
 const AppBar: React.FC<AppBarProps> = ({
   email,
   currentCard = 1,
-  totalCards,
+  totalCards = 0,
 }) => {
   const location = useLocation();
   const isQuestionManager = location.pathname.startsWith("/questions");
@@ -19,25 +21,17 @@ const AppBar: React.FC<AppBarProps> = ({
   return (
     <header className="app-header">
       <div className="app-header__inner">
-        <Link to="/" className="app-brand" aria-label="AskMeDaily home">
-          <span className="app-brand__mark" aria-hidden="true" />
-          <span className="app-brand__name">AskMeDaily</span>
-          <span className="app-brand__edition">Tabletop Edition</span>
-        </Link>
+        <Brand />
 
-        {totalCards !== undefined && totalCards > 0 && (
-          <div
-            className="deck-counter"
-            aria-label={`Card ${currentCard} of ${totalCards}`}
-          >
-            <span className="deck-counter__current">
-              {String(currentCard).padStart(2, "0")}
+        {totalCards > 0 && (
+          <p className="deck-counter" aria-live="polite">
+            <span className="sr-only">{`Card ${currentCard} of ${totalCards}`}</span>
+            <span aria-hidden="true">
+              <span className="deck-counter__current">{currentCard}</span>
+              {" / "}
+              <span className="deck-counter__total">{totalCards}</span>
             </span>
-            <span>of</span>
-            <span className="deck-counter__total">
-              {String(totalCards).padStart(2, "0")}
-            </span>
-          </div>
+          </p>
         )}
 
         <nav className="app-header__actions" aria-label="Main navigation">
@@ -45,9 +39,17 @@ const AppBar: React.FC<AppBarProps> = ({
             <>
               <Link
                 to={isQuestionManager ? "/" : "/questions"}
-                className="app-header__link"
+                className="header-button header-button--collapse-sm"
+                aria-label={isQuestionManager ? "Play cards" : "Question deck"}
               >
-                {isQuestionManager ? "Play cards" : "Questions"}
+                {isQuestionManager ? (
+                  <UilPlay size="16" aria-hidden="true" />
+                ) : (
+                  <UilListUl size="16" aria-hidden="true" />
+                )}
+                <span className="header-button__label">
+                  {isQuestionManager ? "Play" : "Deck"}
+                </span>
               </Link>
               <LogoutButton />
               <span className="app-avatar" title={email}>
@@ -56,13 +58,10 @@ const AppBar: React.FC<AppBarProps> = ({
             </>
           ) : (
             <>
-              <Link to="/login" className="app-header__link">
-                Log In
+              <Link to="/login" className="header-button">
+                Log in
               </Link>
-              <Link
-                to="/join"
-                className="app-header__link app-header__link--primary"
-              >
+              <Link to="/join" className="header-button header-button--primary">
                 Sign up
               </Link>
             </>

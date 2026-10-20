@@ -58,11 +58,11 @@ export default function NewQuestionPage() {
 
   return (
     <div>
-      <p className="deck-manager__eyebrow">Add to the collection</p>
-      <h2 className="deck-manager__editor-title">New Question</h2>
+      <p className="eyebrow">Add to the collection</p>
+      <h2 className="deck-manager__detail-title">New Question</h2>
       <Form method="post" className="question-form">
-        <div className="question-form__field">
-          <label htmlFor="question" className="question-form__label">
+        <div className="field">
+          <label htmlFor="question" className="field-label">
             Question
           </label>
           <input
@@ -76,7 +76,7 @@ export default function NewQuestionPage() {
             }
           />
           {actionData?.errors?.question && (
-            <p className="form-error" id="question-error">
+            <p className="field-error" id="question-error">
               {actionData.errors.question}
             </p>
           )}

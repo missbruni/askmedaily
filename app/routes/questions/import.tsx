@@ -130,12 +130,14 @@ export default function ImportQuestionsPage() {
 
   return (
     <div className="question-import">
-      <p className="deck-manager__eyebrow">Add a stack at once</p>
-      <h2 className="deck-manager__editor-title">Import questions</h2>
-      <p className="question-import__intro">
-        Upload a CSV with a single <code>question</code> column and one question
-        per row. You can import up to 500 questions at a time.
-      </p>
+      <div>
+        <p className="eyebrow">Add a stack at once</p>
+        <h2 className="deck-manager__detail-title">Import questions</h2>
+        <p className="question-import__intro">
+          Upload a CSV with a single <code>question</code> column and one
+          question per row. You can import up to 500 questions at a time.
+        </p>
+      </div>
 
       <Form
         method="post"
@@ -143,8 +145,8 @@ export default function ImportQuestionsPage() {
         className="question-form"
       >
         <input type="hidden" name="intent" value="preview" />
-        <label className="question-form__field">
-          <span className="question-form__label">
+        <label className="field">
+          <span className="field-label">
             CSV file <span className="question-import__limit">512 KB max</span>
           </span>
           <input
@@ -155,13 +157,15 @@ export default function ImportQuestionsPage() {
             className="text-field question-import__file"
           />
         </label>
-        <button type="submit" className="button button--primary">
-          Preview CSV
-        </button>
+        <div className="question-form__actions">
+          <button type="submit" className="button button--primary">
+            Preview CSV
+          </button>
+        </div>
       </Form>
 
       {actionData?.errors && (
-        <div className="form-error-box" role="alert">
+        <div className="form-message form-message--error" role="alert">
           {actionData.errors.map((error, index) => (
             <p key={`${error.row ?? "file"}-${index}`}>
               {error.row ? `Row ${error.row}: ` : ""}
@@ -206,7 +210,7 @@ export default function ImportQuestionsPage() {
       )}
 
       {typeof actionData?.importedCount === "number" && (
-        <p className="form-success" role="status">
+        <p className="form-message form-message--success" role="status">
           Imported {actionData.importedCount} questions.{" "}
           <Link to="/questions" className="text-link">
             View your questions

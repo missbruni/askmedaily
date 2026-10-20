@@ -1,31 +1,35 @@
 import React from "react";
 import type { Question as QuestionModel } from "@prisma/client";
 
+import { formatCardNumber } from "~/utils";
+
 type QuestionProps = {
   question: QuestionModel;
   cardNumber: number;
 };
 
 const Question: React.FC<QuestionProps> = ({ question, cardNumber }) => {
+  const text = question.question || "No question found.";
+  const sizeModifier =
+    text.length > 180
+      ? " question-card__question--long"
+      : text.length > 110
+      ? " question-card__question--medium"
+      : "";
+
   return (
     <article className="question-card">
       <header className="question-card__top">
-        <span className="question-card__badge">
-          <span className="question-card__badge-dot" aria-hidden="true" />
-          Daily card
-        </span>
+        <span className="question-card__badge">Daily card</span>
         <span className="question-card__number">
-          #{String(cardNumber).padStart(2, "0")}
+          {formatCardNumber(cardNumber)}
         </span>
       </header>
 
       <div className="question-card__body">
-        <p className="question-card__eyebrow">A question to share</p>
-        <h2 className="question-card__question">
-          {question.question || "No question found."}
-        </h2>
+        <h2 className={`question-card__question${sizeModifier}`}>{text}</h2>
         <p className="question-card__prompt">
-          Take a moment. There is no right answer.
+          There's no right or wrong answer.
         </p>
       </div>
 

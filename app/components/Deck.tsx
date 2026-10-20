@@ -20,7 +20,7 @@ const trans = (r: number, s: number) =>
 type DeckProps = {
   cards: React.ReactNode[];
   onFinish: () => void;
-  onProgressChange?: (currentCard: number, totalCards: number) => void;
+  onProgressChange?: (currentCard: number) => void;
 };
 
 function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
@@ -42,9 +42,8 @@ function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
       const trigger = vx > 0.2; // If you flick hard enough it should trigger the card to fly out
       const justGone = !active && trigger && !gone.has(index);
       if (justGone) {
-        gone.add(index);
-        const currentCard = gone.size === cards.length ? 1 : gone.size + 1;
-        onProgressChange?.(currentCard, cards.length);
+        gone.add(index); // If button/finger's up and trigger velocity is reached, we flag the card ready to fly out
+        onProgressChange?.(gone.size === cards.length ? 1 : gone.size + 1);
       }
 
       api.start((i) => {
@@ -70,6 +69,7 @@ function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
     }
   );
 
+  // Now we're just mapping the animated values to our view, that's it. Btw, this component only renders once. :-)
   return (
     <>
       {props.map(({ x, y, rot, scale }, i) => (
@@ -91,10 +91,6 @@ function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
               transform: interpolate([rot, scale], trans),
               touchAction: "none",
               willChange: "transform",
-              boxShadow:
-                i === cards.length - 1
-                  ? "var(--shadow-card-stack)"
-                  : "var(--shadow-under-cards)",
             }}
           >
             {cards[i]}
@@ -105,4 +101,4 @@ function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
   );
 }
 
-export default Deck;
+export default React.memo(Deck);

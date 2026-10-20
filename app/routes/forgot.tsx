@@ -8,6 +8,7 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { UilInfoCircle } from "@iconscout/react-unicons";
 
+import Brand from "~/components/Brand";
 import { validateEmail } from "~/utils";
 import { getUserSession } from "~/session.server";
 import { sendResetEmail } from "~/firebase.server";
@@ -63,15 +64,15 @@ export default function ForgotPage() {
   return (
     <main className="app-shell auth-shell">
       <section className="auth-panel">
-        <p className="auth-panel__eyebrow">AskMeDaily / Tabletop Edition</p>
+        <Brand />
         <UilInfoCircle className="auth-panel__icon" aria-hidden="true" />
         <h1 className="auth-panel__title">Reset your password</h1>
         <p className="auth-panel__description">
           Enter your email and we will send a link to reset your password.
         </p>
         <Form method="post" className="auth-form">
-          <div>
-            <label htmlFor="email" className="auth-label">
+          <div className="field">
+            <label htmlFor="email" className="field-label">
               Email
             </label>
             <input
@@ -84,20 +85,24 @@ export default function ForgotPage() {
               autoComplete="email"
               aria-invalid={actionData?.errors?.email ? true : undefined}
               aria-describedby="email-error"
-              className="auth-input"
+              className="text-field"
             />
             {actionData?.errors?.email && (
-              <p className="auth-message auth-message--error" id="email-error">
+              <p className="form-message form-message--error" id="email-error">
                 {actionData.errors.email}
               </p>
             )}
           </div>
           {Boolean(actionData?.data) && (
-            <p className="auth-message auth-message--success">
+            <p className="form-message form-message--success">
               {actionData.data}
             </p>
           )}
-          <button type="submit" className="auth-submit">
+          <button
+            type="submit"
+            className="button button--primary button--block"
+          >
+            {/* TODO: add loading state, submitting */}
             Send reset link
           </button>
           <div className="auth-panel__links">

@@ -13,6 +13,7 @@ import {
 } from "@remix-run/react";
 
 import * as React from "react";
+import Brand from "~/components/Brand";
 import { confirmPassword, verifyPasswordCode } from "~/firebase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -96,14 +97,15 @@ export default function ResetPasswordPage() {
   return (
     <main className="app-shell auth-shell">
       <section className="auth-panel">
-        <p className="auth-panel__eyebrow">AskMeDaily / Tabletop Edition</p>
+        <Brand />
         <h1 className="auth-panel__title">Choose a new password</h1>
         <p className="auth-panel__description">
+          {/* TODO: handle this more gracefully */}
           {`Set a new password for ${loaderData.data!.email}`}
         </p>
         <Form method="post" className="auth-form">
-          <div>
-            <label htmlFor="password" className="auth-label">
+          <div className="field">
+            <label htmlFor="password" className="field-label">
               Password
             </label>
             <input
@@ -116,11 +118,11 @@ export default function ResetPasswordPage() {
               autoComplete="new-password"
               aria-invalid={actionData?.errors?.password ? true : undefined}
               aria-describedby="password-error"
-              className="auth-input"
+              className="text-field"
             />
           </div>
-          <div>
-            <label htmlFor="confirm-password" className="auth-label">
+          <div className="field">
+            <label htmlFor="confirm-password" className="field-label">
               Confirm password
             </label>
             <input
@@ -131,11 +133,11 @@ export default function ResetPasswordPage() {
               autoComplete="new-password"
               aria-invalid={actionData?.errors?.password ? true : undefined}
               aria-describedby="password-error"
-              className="auth-input"
+              className="text-field"
             />
             {actionData?.errors?.password && (
               <p
-                className="auth-message auth-message--error"
+                className="form-message form-message--error"
                 id="password-error"
               >
                 {actionData.errors.password}
@@ -143,11 +145,14 @@ export default function ResetPasswordPage() {
             )}
           </div>
           {Boolean(actionData?.data) && (
-            <p className="auth-message auth-message--success">
+            <p className="form-message form-message--success">
               {actionData.data}
             </p>
           )}
-          <button type="submit" className="auth-submit">
+          <button
+            type="submit"
+            className="button button--primary button--block"
+          >
             Save password
           </button>
           <div className="auth-panel__links">

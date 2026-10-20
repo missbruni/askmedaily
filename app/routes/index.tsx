@@ -27,13 +27,16 @@ export const action: ActionFunction = async ({ request }) => {
   return json({ questions: newQuestions });
 };
 
+const NO_QUESTIONS: Question[] = [];
+
 export default function Index() {
   const loaderData = useLoaderData();
   const actionData = useActionData<ActionData>();
 
   const formRef = React.useRef(null);
   const [currentCard, setCurrentCard] = React.useState(1);
-  const questions = actionData?.questions || loaderData?.questions || [];
+  const questions: Question[] =
+    actionData?.questions ?? loaderData?.questions ?? NO_QUESTIONS;
 
   const handleReshuffle = React.useCallback(() => {
     if (formRef.current) {
@@ -41,56 +44,61 @@ export default function Index() {
     }
   }, []);
 
+  const cards = React.useMemo(
+    () =>
+      questions.map((question, index) => (
+        <QuestionCard
+          key={question.id}
+          question={question}
+          cardNumber={questions.length - index}
+        />
+      )),
+    [questions]
+  );
+
   return (
-    <div className="app-shell home-shell">
+    <div className="app-shell play-shell">
       <AppBar
         email={loaderData.user}
         currentCard={currentCard}
         totalCards={questions.length}
       />
-      <main className="home-stage">
+      <main className="play-stage">
         {questions.length > 0 ? (
           <>
             <Deck
+              cards={cards}
               onFinish={handleReshuffle}
-              onProgressChange={(nextCard) => setCurrentCard(nextCard)}
-              cards={questions.map((question: Question, index: number) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  cardNumber={questions.length - index}
-                />
-              ))}
+              onProgressChange={setCurrentCard}
             />
-            <p className="swipe-guide">
-              <span className="swipe-guide__pass">&lt;- Pass</span>
-              <span>Swipe the card</span>
-              <span className="swipe-guide__keep">Keep -&gt;</span>
+            <p className="swipe-hint">
+              <span className="swipe-hint__icon" aria-hidden="true">
+                ⇄
+              </span>
+              Slide or swipe card to reveal next
             </p>
+            <Form method="post" ref={formRef}>
+              <input
+                type="hidden"
+                name="ignoredIds"
+                value={questions.map((question) => question.id)}
+              />
+            </Form>
           </>
         ) : (
           <section className="deck-empty">
-            <p className="deck-manager__eyebrow">The table is set</p>
-            <h1 className="deck-manager__title">Your deck is waiting.</h1>
-            <p className="deck-manager__summary">
+            <p className="eyebrow">The table is set</p>
+            <h1 className="display-title">Your deck is waiting.</h1>
+            <p className="lead">
               Add a few questions and your first cards will be ready to play.
             </p>
             <Link
               to={loaderData.user ? "/questions/new" : "/join"}
-              className="button button--primary mt-5"
+              className="button button--primary"
             >
               {loaderData.user ? "Add a question" : "Create an account"}
             </Link>
           </section>
-        )}
-        {questions.length > 0 && (
-          <Form method="post" ref={formRef}>
-            <input
-              type="hidden"
-              name="ignoredIds"
-              value={questions.map((question: Question) => question.id)}
-            />
-          </Form>
         )}
       </main>
     </div>

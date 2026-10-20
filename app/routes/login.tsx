@@ -2,6 +2,7 @@ import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
+import Brand from "~/components/Brand";
 import { signIn } from "~/firebase.server";
 import { createUserSession } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
@@ -81,11 +82,11 @@ export default function LoginPage() {
   return (
     <main className="app-shell auth-shell">
       <section className="auth-panel">
-        <p className="auth-panel__eyebrow">AskMeDaily / Tabletop Edition</p>
+        <Brand />
         <h1 className="auth-panel__title">Welcome back</h1>
         <Form method="post" className="auth-form">
-          <div>
-            <label htmlFor="email" className="auth-label">
+          <div className="field">
+            <label htmlFor="email" className="field-label">
               Email
             </label>
             <input
@@ -98,17 +99,17 @@ export default function LoginPage() {
               autoComplete="email"
               aria-invalid={actionData?.errors?.email ? true : undefined}
               aria-describedby="email-error"
-              className="auth-input"
+              className="text-field"
             />
             {actionData?.errors?.email && (
-              <p className="auth-message auth-message--error" id="email-error">
+              <p className="form-message form-message--error" id="email-error">
                 {actionData.errors.email}
               </p>
             )}
           </div>
 
-          <div>
-            <label htmlFor="password" className="auth-label">
+          <div className="field">
+            <label htmlFor="password" className="field-label">
               Password
             </label>
             <input
@@ -119,11 +120,11 @@ export default function LoginPage() {
               autoComplete="current-password"
               aria-invalid={actionData?.errors?.password ? true : undefined}
               aria-describedby="password-error"
-              className="auth-input"
+              className="text-field"
             />
             {actionData?.errors?.password && (
               <p
-                className="auth-message auth-message--error"
+                className="form-message form-message--error"
                 id="password-error"
               >
                 {actionData.errors.password}
@@ -132,18 +133,21 @@ export default function LoginPage() {
           </div>
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button type="submit" className="auth-submit">
+          <button
+            type="submit"
+            className="button button--primary button--block"
+          >
             Log in
           </button>
           <div className="auth-panel__links">
             {resetPassword === "failed" && (
-              <p className="auth-message auth-message--error">
+              <p className="form-message form-message--error">
                 Password update could not be processed at this time. Please try
                 again later.
               </p>
             )}
             {resetPassword === "success" && (
-              <p className="auth-message auth-message--success">
+              <p className="form-message form-message--success">
                 Password has been updated, you can now login with your new
                 credentials.
               </p>
