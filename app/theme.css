@@ -658,6 +658,20 @@ a {
   color: var(--accent-amber);
 }
 
+.swipe-hint--error {
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.swipe-hint--error button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .deck-empty {
   display: grid;
   width: min(420px, calc(100vw - 40px));

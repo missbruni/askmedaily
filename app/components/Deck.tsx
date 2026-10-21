@@ -21,9 +21,10 @@ type DeckProps = {
   cards: React.ReactNode[];
   onFinish: () => void;
   onProgressChange?: (currentCard: number) => void;
+  onSwipe?: (index: number) => void;
 };
 
-function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
+function Deck({ cards, onFinish, onProgressChange, onSwipe }: DeckProps) {
   const [gone] = React.useState(() => new Set()); // The set flags all the cards that are flicked out
   const [props, api] = useSprings(cards.length, (i) => ({
     ...to(i),
@@ -39,10 +40,12 @@ function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
       direction: [xDir],
       velocity: [vx],
     }) => {
+      if (index !== cards.length - gone.size - 1) return;
       const trigger = vx > 0.2; // If you flick hard enough it should trigger the card to fly out
       const justGone = !active && trigger && !gone.has(index);
       if (justGone) {
         gone.add(index); // If button/finger's up and trigger velocity is reached, we flag the card ready to fly out
+        onSwipe?.(index);
         onProgressChange?.(gone.size === cards.length ? 1 : gone.size + 1);
       }
 
@@ -64,7 +67,6 @@ function Deck({ cards, onFinish, onProgressChange }: DeckProps) {
 
       if (justGone && gone.size === cards.length) {
         onFinish();
-        gone.clear();
       }
     }
   );
