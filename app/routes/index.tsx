@@ -1,58 +1,49 @@
-import type { Question } from "@prisma/client";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/server-runtime";
-import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderArgs } from "@remix-run/server-runtime";
 import React from "react";
 
 import AppBar from "~/components/AppBar";
 import Deck from "~/components/Deck";
 
-import { getRandomQuestions } from "~/question.server";
+import { loadQuestionDeck } from "~/question-progress.server";
 import { getUserSession } from "~/session.server";
 import QuestionCard from "~/components/Question";
+import { useQuestionProgress } from "~/use-question-progress";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await getUserSession(request);
 
-  const questions = await getRandomQuestions();
-  return { questions, user: user?.email };
+  const { questions, round, cookie } = await loadQuestionDeck(request);
+  return json(
+    { questions, round, user: user?.email },
+    { headers: { "Set-Cookie": cookie, "Cache-Control": "no-store" } }
+  );
 };
-
-type ActionData = { questions: Question[] };
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const ignoreIds = formData.get("ignoredIds") as string;
-
-  const newQuestions = await getRandomQuestions(ignoreIds.split(","));
-  return json({ questions: newQuestions });
-};
-
-const NO_QUESTIONS: Question[] = [];
 
 export default function Index() {
-  const loaderData = useLoaderData();
-  const actionData = useActionData<ActionData>();
-
-  const formRef = React.useRef(null);
+  const loaderData = useLoaderData<typeof loader>();
+  const { questions, round } = loaderData;
   const [currentCard, setCurrentCard] = React.useState(1);
-  const questions: Question[] =
-    actionData?.questions ?? loaderData?.questions ?? NO_QUESTIONS;
-
-  const handleReshuffle = React.useCallback(() => {
-    if (formRef.current) {
-      (formRef.current as HTMLFormElement).submit();
-    }
-  }, []);
+  const { save, finish, retry, saveFailed } = useQuestionProgress(round);
+  const handleSwipe = React.useCallback(
+    (index: number) => {
+      void save(questions[questions.length - 1 - index].id);
+    },
+    [questions, save]
+  );
 
   const cards = React.useMemo(
     () =>
-      questions.map((question, index) => (
-        <QuestionCard
-          key={question.id}
-          question={question}
-          cardNumber={questions.length - index}
-        />
-      )),
+      [...questions]
+        .reverse()
+        .map((question, index) => (
+          <QuestionCard
+            key={question.id}
+            question={question}
+            cardNumber={questions.length - index}
+          />
+        )),
     [questions]
   );
 
@@ -68,22 +59,25 @@ export default function Index() {
           <>
             <Deck
               cards={cards}
-              onFinish={handleReshuffle}
+              onFinish={finish}
               onProgressChange={setCurrentCard}
+              onSwipe={handleSwipe}
             />
-            <p className="swipe-hint">
-              <span className="swipe-hint__icon" aria-hidden="true">
-                ⇄
-              </span>
-              Slide or swipe card to reveal next
-            </p>
-            <Form method="post" ref={formRef}>
-              <input
-                type="hidden"
-                name="ignoredIds"
-                value={questions.map((question) => question.id)}
-              />
-            </Form>
+            {saveFailed ? (
+              <p className="swipe-hint swipe-hint--error" role="alert">
+                Progress could not be saved.{" "}
+                <button type="button" onClick={retry}>
+                  Retry
+                </button>
+              </p>
+            ) : (
+              <p className="swipe-hint">
+                <span className="swipe-hint__icon" aria-hidden="true">
+                  ⇄
+                </span>
+                Slide or swipe card to reveal next
+              </p>
+            )}
           </>
         ) : (
           <section className="deck-empty">

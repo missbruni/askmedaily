@@ -1,10 +1,10 @@
 import React from "react";
-import type { Question as QuestionModel } from "@prisma/client";
+import type { Question as QuestionModel } from "~/question.server";
 
 import { formatCardNumber } from "~/utils";
 
 type QuestionProps = {
-  question: QuestionModel;
+  question: Pick<QuestionModel, "question">;
   cardNumber: number;
 };
 

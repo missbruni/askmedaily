@@ -19,7 +19,7 @@ function invalidateQuestionIdsCache() {
   questionIdsCacheVersion += 1;
 }
 
-async function getQuestionIds() {
+export async function getQuestionIds() {
   if (questionIdsCache && questionIdsCache.expiresAt > Date.now()) {
     return questionIdsCache.ids;
   }
@@ -73,24 +73,23 @@ export async function getQuestionsByUser(userId: string) {
   return data;
 }
 
-export async function getRandomQuestions(ignoredIds?: string[]) {
-  const documentIds = await getQuestionIds();
-  const availableIds = documentIds.filter((id) => !ignoredIds?.includes(id));
-
-  const shuffled = availableIds.sort(() => 0.5 - Math.random());
-  const randomDocumentIds = shuffled.slice(0, 5);
-  if (randomDocumentIds.length === 0) return [];
+export async function getQuestionsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
 
   const questionsSnapshot = await db
     .collection(QUESTIONS)
-    .where(admin.firestore.FieldPath.documentId(), "in", randomDocumentIds)
+    .where(admin.firestore.FieldPath.documentId(), "in", ids)
     .get();
 
   const data: Question[] = [];
   questionsSnapshot.forEach((doc: any) =>
     data.push({ id: doc.id, ...doc.data() })
   );
-  return data;
+  const questions = new Map(data.map((question) => [question.id, question]));
+  return ids.flatMap((id) => {
+    const question = questions.get(id);
+    return question ? [question] : [];
+  });
 }
 
 export async function createQuestion(question: string, userId: string) {

@@ -2,7 +2,11 @@ import { vi } from "vitest";
 
 import { db } from "~/firebase.server";
 
-import { createQuestion, getRandomQuestions } from "./question.server";
+import {
+  createQuestion,
+  getQuestionIds,
+  getQuestionsByIds,
+} from "./question.server";
 
 vi.mock("~/firebase.server", () => ({
   admin: {
@@ -48,22 +52,22 @@ afterEach(() => {
 test("caches and invalidates question IDs and handles an empty collection", async () => {
   const now = vi.spyOn(Date, "now").mockReturnValue(1000);
 
-  await getRandomQuestions();
-  await getRandomQuestions();
+  await getQuestionIds();
+  await getQuestionIds();
   const scansBeforeCreate = listDocuments.mock.calls.length;
 
   now.mockReturnValue(1000 + 5 * 60 * 1000 + 1);
-  await getRandomQuestions();
+  await getQuestionIds();
   const scansAfterExpiry = listDocuments.mock.calls.length;
 
   await createQuestion("A new question?", "user-1");
-  await getRandomQuestions();
+  await getQuestionIds();
   const scansAfterCreate = listDocuments.mock.calls.length;
 
   await createQuestion("Another question?", "user-1");
   const queryCountBeforeEmpty = collection.where.mock.calls.length;
   listDocuments.mockResolvedValueOnce([]);
-  const emptyQuestions = await getRandomQuestions();
+  const emptyQuestions = await getQuestionsByIds(await getQuestionIds());
 
   expect({
     scansBeforeCreate,
@@ -77,7 +81,18 @@ test("caches and invalidates question IDs and handles an empty collection", asyn
     scansAfterExpiry: 2,
     scansAfterCreate: 3,
     emptyQuestions: [],
-    queryCountBeforeEmpty: 4,
-    queryCountAfterEmpty: 4,
+    queryCountBeforeEmpty: 0,
+    queryCountAfterEmpty: 0,
   });
+});
+
+test("returns questions in deck order even if Firestore returns a different order", async () => {
+  const questions = await getQuestionsByIds(["q3", "deleted", "q1"]);
+
+  expect(questions.map(({ id }) => id)).toEqual(["q3", "q1"]);
+  expect(collection.where).toHaveBeenCalledWith("document-id", "in", [
+    "q3",
+    "deleted",
+    "q1",
+  ]);
 });
