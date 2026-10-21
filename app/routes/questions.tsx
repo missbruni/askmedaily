@@ -86,6 +86,9 @@ export default function QuestionsPage() {
               <UilFileImport size="16" aria-hidden="true" />
               Import CSV
             </Link>
+            <Link to="generate" className="button button--outline">
+              Generate with AI
+            </Link>
           </div>
         </header>
 

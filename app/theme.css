@@ -1049,6 +1049,55 @@ a {
   text-align: center;
 }
 
+.question-generation__fields {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.question-generation__fields:disabled {
+  opacity: 0.65;
+}
+
+.question-generation__drafts {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.question-generation__draft {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--ui-border-subtle);
+  border-radius: 12px;
+  background: var(--ui-bg-elevated);
+}
+
+.question-generation__include {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ui-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.question-generation__include input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-amber);
+}
+
+.question-generation__draft textarea {
+  resize: vertical;
+}
+
 /* Maintenance */
 
 .maintenance-shell {
