@@ -14,10 +14,28 @@ The play screen does not call Gemini.
 Set these environment variables on the server (never in browser code):
 
 - `GEMINI_API_KEY`: a Gemini Developer API key from Google AI Studio.
-- `GEMINI_MODEL`: optional model ID; defaults to `gemini-2.5-flash`. Check Google's
+- `GEMINI_MODEL`: optional model ID; defaults to `gemini-3.5-flash-lite`. Check Google's
   current model availability and pricing before enabling it.
 - `GEMINI_DAILY_REQUEST_LIMIT`: optional app-wide request cap, default `20`
   (valid range: 1-1000).
+
+### Get a Gemini API key
+
+1. Sign in to [Google AI Studio](https://aistudio.google.com/apikey) with a Google
+   account and accept the terms.
+2. Use the default project/key if one was created for you, or select **Create API
+   key** and create/select a project. A separate project from Firebase is fine.
+3. For free-tier use, choose a project without paid billing enabled and check its
+   usage limits in AI Studio. Google's [pricing page](https://ai.google.dev/gemini-api/docs/pricing)
+   currently lists free-tier input and output for `gemini-3.5-flash-lite`; limits
+   and availability can change.
+4. Store the key as `GEMINI_API_KEY` in your gitignored `.env` for local development,
+   or as a server secret on Fly for deployment. Never commit it, put it in browser
+   code, or share it in chat. Restart the local server after changing `.env`.
+
+New AI Studio keys are restricted to the Gemini API by default. If managing an
+existing key, follow Google's [API key security guidance](https://ai.google.dev/gemini-api/docs/api-key).
+Free-tier prompts and responses may be used to improve Google's products.
 
 Without a key, the generation page explains that AI is unavailable. Manual entry,
 CSV import, and playing existing questions keep working.

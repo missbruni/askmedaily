@@ -65,12 +65,13 @@ test("requests structured suggestions with a server-side key and no user identit
   expect(reserveQuestionGeneration).toHaveBeenCalledWith("user-1");
   const [url, init] = fetchMock.mock.calls[0];
   expect(url).toBe(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent"
   );
   expect(String(url)).not.toContain("test-only-key");
   expect(init?.headers).toMatchObject({ "x-goog-api-key": "test-only-key" });
   const body = JSON.parse(String(init?.body));
   expect(body.generationConfig.responseMimeType).toBe("application/json");
+  expect(body.generationConfig).not.toHaveProperty("temperature");
   expect(body.contents[0].parts[0].text).toContain("teamwork");
   expect(init?.body).not.toContain("user-1");
   expect(init?.signal).toBeInstanceOf(AbortSignal);

@@ -32,7 +32,7 @@ export async function generateQuestionSuggestions({
     );
   }
   const apiKey = process.env.GEMINI_API_KEY?.trim();
-  const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
   if (!apiKey || !/^[a-zA-Z0-9._-]+$/.test(model)) {
     throw new QuestionGenerationError(
       "AI generation is not configured yet. Please contact the site owner.",
@@ -84,7 +84,6 @@ export async function generateQuestionSuggestions({
               required: ["questions"],
             },
             maxOutputTokens: 4096,
-            temperature: 0.9,
           },
         }),
       }
