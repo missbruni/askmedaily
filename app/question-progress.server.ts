@@ -7,6 +7,7 @@ import {
   parseQuestionDeck,
 } from "~/question-deck.server";
 import { getQuestionIds, getQuestionsByIds } from "~/question.server";
+import { hasAllowedOrigin } from "~/request-origin.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -44,8 +45,7 @@ export async function loadQuestionDeck(request: Request) {
 }
 
 export async function saveQuestionProgress(request: Request) {
-  const origin = request.headers.get("Origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!hasAllowedOrigin(request)) {
     return new Response(null, { status: 403 });
   }
 

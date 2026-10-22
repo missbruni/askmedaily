@@ -31,12 +31,13 @@ async function load() {
 async function swipe(
   round: string,
   questionId: string,
-  origin = "http://app.test"
+  origin = "http://app.test",
+  headers: Record<string, string> = {}
 ) {
   const response = (await action({
     request: new Request("http://app.test/question-progress", {
       method: "POST",
-      headers: { Cookie: cookie, Origin: origin },
+      headers: { Cookie: cookie, Origin: origin, ...headers },
       body: new URLSearchParams({ round, questionId }),
     }),
     params: {},
@@ -93,6 +94,34 @@ test("anonymous visitors resume per swipe across reloads and complete a round wi
 
 test("an unconsumed batch is not skipped by a refresh", async () => {
   expect((await load()).data.questions).toEqual((await load()).data.questions);
+});
+
+test("saves swipe progress through Fly's HTTPS-terminating proxy", async () => {
+  const first = (await load()).data;
+  const headers = { "X-Forwarded-Proto": "https" };
+  const saved = await swipe(
+    first.round,
+    first.questions[0].id,
+    "https://app.test",
+    headers
+  );
+  expect(saved.status).toBe(204);
+  expect(saved.headers.get("Set-Cookie")).toContain("__question_deck=");
+  expect((await load()).data.questions[0].id).toBe(first.questions[1].id);
+});
+
+test("rejects cross-site proxy swipes without advancing progress", async () => {
+  const first = (await load()).data;
+  const previousCookie = cookie;
+  const denied = await swipe(
+    first.round,
+    first.questions[0].id,
+    "https://other.test",
+    { "X-Forwarded-Proto": "https", "X-Forwarded-Host": "other.test" }
+  );
+  expect(denied.status).toBe(403);
+  expect(denied.headers.get("Set-Cookie")).toBeNull();
+  expect(cookie).toBe(previousCookie);
 });
 
 test("keeps the same bookmark when the visitor signs in", async () => {

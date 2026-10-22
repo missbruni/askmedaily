@@ -23,11 +23,15 @@ const user = { uid: "user-123" } as NonNullable<
 const originalKey = process.env.GEMINI_API_KEY;
 const suggestion = "What makes you smile?";
 
-async function submit(form: URLSearchParams, origin = "http://app.test") {
+async function submit(
+  form: URLSearchParams,
+  origin = "http://app.test",
+  headers: Record<string, string> = {}
+) {
   return (await action({
     request: new Request("http://app.test/questions/generate", {
       method: "POST",
-      headers: { Origin: origin },
+      headers: { Origin: origin, ...headers },
       body: form,
     }),
     params: {},
@@ -105,6 +109,45 @@ test("generates an editable preview without saving any question documents", asyn
     topic: "teamwork",
     count: 5,
   });
+  expect(createQuestions).not.toHaveBeenCalled();
+});
+
+test("generates and saves through Fly's HTTPS-terminating proxy", async () => {
+  const headers = { "X-Forwarded-Proto": "https" };
+  const preview = await submit(generation(), "https://app.test", headers);
+  expect(preview.status).toBe(200);
+  expect(await preview.json()).toMatchObject({
+    drafts: [{ question: suggestion, selected: true }],
+  });
+  expect(createQuestions).not.toHaveBeenCalled();
+
+  const saved = await submit(
+    selection([suggestion]),
+    "https://app.test",
+    headers
+  );
+  expect(saved.status).toBe(200);
+  expect(await saved.json()).toEqual({ savedCount: 1 });
+  expect(createQuestions).toHaveBeenCalledWith([suggestion], user.uid);
+});
+
+test("rejects cross-site proxy requests before generating or saving", async () => {
+  const headers = {
+    "X-Forwarded-Proto": "https",
+    "X-Forwarded-Host": "other.test",
+  };
+  const generated = await submit(generation(), "https://other.test", headers);
+  const saved = await submit(
+    selection([suggestion]),
+    "https://other.test",
+    headers
+  );
+  const insecure = await submit(generation(), "http://app.test", headers);
+  expect([generated.status, saved.status, insecure.status]).toEqual([
+    403, 403, 403,
+  ]);
+  expect(getQuestionsByUser).not.toHaveBeenCalled();
+  expect(generateQuestionSuggestions).not.toHaveBeenCalled();
   expect(createQuestions).not.toHaveBeenCalled();
 });
 
