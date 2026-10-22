@@ -8,6 +8,7 @@ import {
   QuestionGenerationError,
   reserveQuestionGeneration,
 } from "~/question-generation-limit.server";
+import { postJson } from "~/post-json.server";
 
 type GenerationOptions = { userId: string; topic: string; count: number };
 type GeminiResponse = {
@@ -44,10 +45,9 @@ export async function generateQuestionSuggestions({
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch(
+    const response = await postJson(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
-        method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-goog-api-key": apiKey,
@@ -88,6 +88,12 @@ export async function generateQuestionSuggestions({
         }),
       }
     );
+    if (response.status < 200 || response.status >= 300) {
+      console.warn("Gemini generation request failed.", {
+        model,
+        status: response.status,
+      });
+    }
     if (response.status === 429) {
       throw new QuestionGenerationError(
         "Gemini's request limit has been reached. Please try again later.",
@@ -101,12 +107,12 @@ export async function generateQuestionSuggestions({
         503
       );
     }
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
       throw new QuestionGenerationError(
         "Gemini is temporarily unavailable. Please try again later."
       );
     }
-    const data = (await response.json()) as GeminiResponse;
+    const data = JSON.parse(response.body) as GeminiResponse;
     const candidate = data.candidates?.[0];
     if (candidate?.finishReason !== "STOP") {
       throw new QuestionGenerationError(
@@ -143,6 +149,7 @@ export async function generateQuestionSuggestions({
   } catch (error) {
     if (error instanceof QuestionGenerationError) throw error;
     if (controller.signal.aborted) {
+      console.warn("Gemini generation timed out.", { model });
       throw new QuestionGenerationError(
         "Generation took too long. Please try again.",
         504
