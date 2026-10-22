@@ -19,6 +19,7 @@ import { generateQuestionSuggestions } from "~/question-generation.server";
 import { QuestionGenerationError } from "~/question-generation-limit.server";
 import GeneratedQuestionPreview from "~/components/GeneratedQuestionPreview";
 import { getUserSession } from "~/session.server";
+import { hasAllowedOrigin } from "~/request-origin.server";
 import type { QuestionDraft } from "~/question-generation";
 
 type ActionData = {
@@ -41,8 +42,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const user = await getUserSession(request);
   if (!user) return redirect("/");
-  const origin = request.headers.get("Origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!hasAllowedOrigin(request)) {
     return json<ActionData>(
       { error: "This request is not allowed." },
       { status: 403 }
